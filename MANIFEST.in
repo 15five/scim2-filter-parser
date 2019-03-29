@@ -1,0 +1,10 @@
+include *.txt
+include *.rst
+include MANIFEST.in
+include tox.ini
+exclude requirements.txt
+recursive-include scim2filter *.py *.json *.rst
+recursive-exclude . *.pyc
+prune docs
+prune dist
+
