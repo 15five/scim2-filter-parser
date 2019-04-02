@@ -131,6 +131,7 @@
                         Table 5: Grouping Operators
 
 """
+# flake8: noqa: F821
 from sly import Lexer
 
 
