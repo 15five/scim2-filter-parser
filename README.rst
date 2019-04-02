@@ -1,5 +1,5 @@
-SCIM 2.0 Filters
-================
+SCIM 2.0 Filter Parser
+======================
 
 |travis| |codecov|
 
