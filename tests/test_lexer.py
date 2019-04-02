@@ -217,6 +217,7 @@ class RFCExamples(TestCase):
             ('COMP_VALUE', '@example.com'),
             ('RBRACKET', ']')
         ]
+        self.assertTokens(query, expected)
 
     def test_emails_type_eq_work_value_contians_or_ims_type_eq_and_value_contians(self):
         query = ('emails[type eq "work" and value co "@example.com"] or '

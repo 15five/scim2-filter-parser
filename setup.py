@@ -2,9 +2,6 @@
 
 from setuptools import setup, find_packages
 import os
-import sys
-import unittest
-import sys
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
