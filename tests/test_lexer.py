@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from scim2filter.lexer import SCIMLexer
+from scim2_filter_parser.lexer import SCIMLexer
 
 
 class RFCExamples(TestCase):
