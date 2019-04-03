@@ -24,7 +24,7 @@ class AST(object):
 
     def __init__(self, *args, **kwargs):
         if len(args) != len(self._fields):
-            raise TypeError(f'Expected {len(fields)} arguments')
+            raise TypeError(f'{str(self)}: Expected {len(self._fields)} arguments')
 
         for name, val in zip(self._fields, args):
             setattr(self, name, val)
@@ -78,9 +78,9 @@ class SubAttr(AST):
 
 
 class AttrPath(AST):
-    uri       : str
     attr_name : str
-    sub_attr  : SubAttr
+    sub_attr  : (SubAttr, type(None))
+    uri       : (type(str), type(None))
 
 
 class CompValue(AST):
@@ -90,6 +90,7 @@ class CompValue(AST):
 class AttrExpr(AST):
     attr_path  : AttrPath
     comp_value : CompValue
+    present    : (type(True), type(None))
 
 
 class ValueFilter(AST):

@@ -113,49 +113,49 @@ class SCIMParser(Parser):
     #                                           ; 0 or 1 "not"s
     @_('attr_exp')
     def filter(self, p):
-        return (p[0],)
+        return ast.Filter(p.attr_exp, None, None)
 
     @_('log_exp')
     def filter(self, p):
-        return (p[0],)
+        return ast.Filter(p.log_exp, None, None)
 
     @_('value_path')
     def filter(self, p):
-        return (p[0],)
+        return ast.Filter(p.value_path, None, None)
 
     @_('LPAREN filter RPAREN')
     def filter(self, p):
-        return (p.filter,)
+        return ast.Filter(p.filter, None, None)
 
     @_('filter NOT filter')
     def filter(self, p):
-        return (p.filter,)
+        return ast.Filter(p.filter0, p.filter1, True)
 
     # valuePath = attrPath "[" valFilter "]"
     #            ; FILTER uses sub-attributes of a parent attrPath
     @_('attr_path LBRACKET value_filter RBRACKET')
     def value_path(self, p):
-        pass
+        return ast.ValuePath(p.attr_path, p.value_filter)
 
     # valFilter = attrExp / logExp / *1"not" "(" valFilter ")"
     #                               ; 0 or 1 "not"s
     @_('attr_exp')
     def value_filter(self, p):
-        pass
+        return ast.ValueFilter(p.attr_exp, None)
 
     @_('log_exp')
     def value_filter(self, p):
-        pass
+        return ast.ValueFilter(p.log_exp, None)
 
     @_('NOT LPAREN value_filter RPAREN')
     def value_filter(self, p):
-        pass
+        return ast.ValueFilter(p.value_filter, True)
 
     # attrExp   = (attrPath SP "pr") /
     #             (attrPath SP compareOp SP compValue)
     @_('attr_path PR')
     def attr_exp(self, p):
-        pass
+        return ast.AttrExpr(p.attr_path, None, True)
 
     @_('attr_path EQ comp_value',
        'attr_path NE comp_value',
@@ -167,13 +167,13 @@ class SCIMParser(Parser):
        'attr_path GE comp_value',
        'attr_path LE comp_value')
     def attr_exp(self, p):
-        pass
+        return ast.AttrExpr(p.attr_path, p.comp_value, None)
 
     # logExp    = FILTER SP ("and" / "or") SP FILTER
     @_('filter OR filter',
        'filter AND filter')
     def log_exp(self, p):
-        pass
+        return ast.LogExpr(p.filter0, p.filter1, p[1])
 
     # compValue = false / null / true / number / string
     #            ; rules from JSON (RFC 7159)
@@ -183,7 +183,7 @@ class SCIMParser(Parser):
        'NUMBER',
        'COMP_VALUE')
     def comp_value(self, p):
-        pass
+        return ast.CompValue(p[0])
 
     # attrPath  = [URI ":"] ATTRNAME *1subAttr
     #             ; SCIM attribute name
@@ -193,13 +193,20 @@ class SCIMParser(Parser):
        'SCHEMA_URI ATTRNAME',
        'SCHEMA_URI ATTRNAME sub_attr')
     def attr_path(self, p):
-        pass
+        if len(p) == 1:
+            return ast.AttrPath(p[0], None, None)
+        elif len(p) == 2 and isinstance(p[1], ast.SubAttr):
+            return ast.AttrPath(p[0], p[1], None)
+        elif len(p) == 2:
+            return ast.AttrPath(p[1], None, p[0])
+        else:
+            return ast.AttrPath(p[1], p[2], p[0])
 
     # subAttr   = "." ATTRNAME
     #             ; a sub-attribute of a complex attribute
     @_('DOT ATTRNAME')
     def sub_attr(self, p):
-        pass
+        return ast.SubAttr(p[1])
 
 
 def main():
