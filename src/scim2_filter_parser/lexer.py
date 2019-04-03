@@ -1,4 +1,9 @@
 """
+This file contains the lexer class that is used to tokenize a given SCIM
+filter query.
+
+See https://tools.ietf.org/html/rfc7644#section-3.4.2.2 for more details.
+
    The operators supported in the expression are listed in Table 3.
 
    +----------+-------------+------------------------------------------+
@@ -156,7 +161,6 @@ class SCIMLexer(Lexer):
         COMP_VALUE,
         ATTRNAME,
         DOT,
-        SP,
         SCHEMA_URI,
     }
 
@@ -201,26 +205,22 @@ class SCIMLexer(Lexer):
     NUMBER = r'[0-9]' # only support integers at this time
 
     # attrPath parts
-    SCHEMA_URI = r'[a-zA-Z]+:[a-zA-Z0-9:\._-]+'
+    @_(r'[a-zA-Z]+:[a-zA-Z0-9:\._-]+:')
+    def SCHEMA_URI(self, t):
+        t.value = t.value.rstrip(':')
+        return t
+
     ATTRNAME = r'[a-zA-Z][a-zA-Z0-9_-]*'
 
     # Other characters
     DOT = r'\.'
-    SP = r' '
-
-    # Ignored pattern
-    ignore_newline = r'\n+'
-
-    # Extra action for newlines
-    def ignore_newline(self, t):
-        self.lineno += t.value.count('\n')
-
-    def error(self, t):
-        print(f"Illegal character '{t.value[0]}'")
-        self.index += 1
 
     @_(r'"([^"]*)"')
     def COMP_VALUE(self, t):
         t.value = t.value.strip('"')
         return t
+
+    def error(self, t):
+        print(f"Illegal character '{t.value[0]}'")
+        self.index += 1
 

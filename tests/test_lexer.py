@@ -48,7 +48,8 @@ class RFCExamples(TestCase):
     def test_schema_username_startswith(self):
         query = 'urn:ietf:params:scim:schemas:core:2.0:User:userName sw "J"'
         expected = [
-            ('SCHEMA_URI', 'urn:ietf:params:scim:schemas:core:2.0:User:userName'),
+            ('SCHEMA_URI', 'urn:ietf:params:scim:schemas:core:2.0:User'),
+            ('ATTRNAME', 'userName'),
             ('SW', 'sw'),
             ('COMP_VALUE', 'J'),
         ]
