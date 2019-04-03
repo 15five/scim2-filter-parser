@@ -40,10 +40,12 @@ class AST(object):
 
             if isinstance(val, AST):
                 parts.append(f'{name}={type(val).__name__}')
+
             elif isinstance(val, list):
                 parts.append(f'{name}=[ len={len(val)} ]')
+
             else:
-                parts.append(repr(val))
+                parts.append(f'{name}={repr(val)}')
 
         argstr = ', '.join(parts)
 
@@ -80,22 +82,26 @@ class SubAttr(AST):
 class AttrPath(AST):
     attr_name : str
     sub_attr  : (SubAttr, type(None))
-    uri       : (type(str), type(None))
+    uri       : (str, type(None))
 
 
 class CompValue(AST):
     value : str
 
 
+class AttrExprOp(AST):
+    value : str
+
+
 class AttrExpr(AST):
     attr_path  : AttrPath
     comp_value : CompValue
-    present    : (type(True), type(None))
+    op         : AttrExprOp
 
 
 class ValueFilter(AST):
     expr    : (AST, type(None))
-    negated : (type(True), type(None))
+    negated : (bool, type(None))
 
 
 class ValuePath(AST):
@@ -106,13 +112,13 @@ class ValuePath(AST):
 class Filter(AST):
     expr1    : AST
     expr2    : (AST, type(None))
-    negated  : (type(True), type(None))
+    negated  : (bool, type(None))
 
 
 class LogExpr(AST):
     expr1  : Filter
     expr2  : Filter
-    log_op : str
+    op     : str
 
 # The following classes for visiting and rewriting the AST are taken
 # from Python's ast module.   It's really easy to make mistakes when

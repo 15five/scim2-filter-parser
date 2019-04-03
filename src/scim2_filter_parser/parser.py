@@ -153,11 +153,8 @@ class SCIMParser(Parser):
 
     # attrExp   = (attrPath SP "pr") /
     #             (attrPath SP compareOp SP compValue)
-    @_('attr_path PR')
-    def attr_exp(self, p):
-        return ast.AttrExpr(p.attr_path, None, True)
-
-    @_('attr_path EQ comp_value',
+    @_('attr_path PR',
+       'attr_path EQ comp_value',
        'attr_path NE comp_value',
        'attr_path CO comp_value',
        'attr_path SW comp_value',
@@ -167,7 +164,11 @@ class SCIMParser(Parser):
        'attr_path GE comp_value',
        'attr_path LE comp_value')
     def attr_exp(self, p):
-        return ast.AttrExpr(p.attr_path, p.comp_value, None)
+        aeo = ast.AttrExprOp(p[1])
+        comp_value = None
+        if len(p) == 3:
+            comp_value = p.comp_value
+        return ast.AttrExpr(p.attr_path, comp_value, aeo)
 
     # logExp    = FILTER SP ("and" / "or") SP FILTER
     @_('filter OR filter',
