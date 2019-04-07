@@ -217,7 +217,7 @@ def main():
     import sys
 
     if len(sys.argv) != 2:
-        sys.stderr.write('Usage: python -m scim2_filter_parser.parser')
+        sys.stderr.write('Usage: python -m scim2_filter_parser.parser <filter>\n')
         raise SystemExit(1)
 
     token_stream = lexer.SCIMLexer().tokenize(sys.argv[1])
