@@ -106,50 +106,38 @@ class SCIMParser(Parser):
     precedence = (
         ('nonassoc', OR),
         ('nonassoc', AND),
-        ('right', NOT),
+        ('nonassoc', NOT),
     )
 
     # FILTER    = attrExp / logExp / valuePath / *1"not" "(" FILTER ")"
     #                                           ; 0 or 1 "not"s
     @_('attr_exp')
     def filter(self, p):
-        return ast.Filter(p.attr_exp, None, None)
+        return ast.Filter(p.attr_exp, False)
 
     @_('log_exp')
     def filter(self, p):
-        return ast.Filter(p.log_exp, None, None)
+        return ast.Filter(p.log_exp, False)
 
     @_('value_path')
     def filter(self, p):
-        return ast.Filter(p.value_path, None, None)
+        return ast.Filter(p.value_path, False)
 
-    @_('LPAREN filter RPAREN')
+    @_('LPAREN filter RPAREN',
+       'NOT LPAREN filter RPAREN')
     def filter(self, p):
-        return ast.Filter(p.filter, None, None)
-
-    @_('NOT filter')
-    def filter(self, p):
-        return ast.Filter(p.filter, None, True)
+        negate = p[0].lower() == 'not'
+        return ast.Filter(p.filter, negate)
 
     # valuePath = attrPath "[" valFilter "]"
     #            ; FILTER uses sub-attributes of a parent attrPath
-    @_('attr_path LBRACKET value_filter RBRACKET')
-    def value_path(self, p):
-        return ast.ValuePath(p.attr_path, p.value_filter)
-
     # valFilter = attrExp / logExp / *1"not" "(" valFilter ")"
     #                               ; 0 or 1 "not"s
-    @_('attr_exp')
-    def value_filter(self, p):
-        return ast.ValueFilter(p.attr_exp, None)
-
-    @_('log_exp')
-    def value_filter(self, p):
-        return ast.ValueFilter(p.log_exp, None)
-
-    @_('NOT LPAREN value_filter RPAREN')
-    def value_filter(self, p):
-        return ast.ValueFilter(p.value_filter, True)
+    # Since valFilter and Filter have the same structure, we have to
+    # parse valFilter as a Filter. Else we'll run into reduce/reduce conflicts.
+    @_('attr_path LBRACKET filter RBRACKET')
+    def value_path(self, p):
+        return ast.ValuePath(p.attr_path, p.filter)
 
     # attrExp   = (attrPath SP "pr") /
     #             (attrPath SP compareOp SP compValue)
@@ -164,17 +152,14 @@ class SCIMParser(Parser):
        'attr_path GE comp_value',
        'attr_path LE comp_value')
     def attr_exp(self, p):
-        aeo = ast.AttrExprOp(p[1])
-        comp_value = None
-        if len(p) == 3:
-            comp_value = p.comp_value
-        return ast.AttrExpr(p.attr_path, comp_value, aeo)
+        comp_value = p.comp_value if len(p) == 3 else None
+        return ast.AttrExpr(p[1], p.attr_path, comp_value)
 
     # logExp    = FILTER SP ("and" / "or") SP FILTER
     @_('filter OR filter',
        'filter AND filter')
     def log_exp(self, p):
-        return ast.LogExpr(p.filter0, p.filter1, p[1])
+        return ast.LogExpr(p[1], p.filter0, p.filter1)
 
     # compValue = false / null / true / number / string
     #            ; rules from JSON (RFC 7159)

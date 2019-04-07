@@ -89,14 +89,10 @@ class CompValue(AST):
     value : str
 
 
-class AttrExprOp(AST):
-    value : str
-
-
 class AttrExpr(AST):
+    value : str
     attr_path  : AttrPath
     comp_value : CompValue
-    op         : AttrExprOp
 
 
 class ValueFilter(AST):
@@ -110,15 +106,14 @@ class ValuePath(AST):
 
 
 class Filter(AST):
-    expr1    : AST
-    expr2    : (AST, type(None))
-    negated  : (bool, type(None))
+    expr     : AST
+    negated  : bool
 
 
 class LogExpr(AST):
+    op     : str
     expr1  : Filter
     expr2  : Filter
-    op     : str
 
 # The following classes for visiting and rewriting the AST are taken
 # from Python's ast module.   It's really easy to make mistakes when
