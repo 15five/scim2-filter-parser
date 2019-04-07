@@ -106,7 +106,7 @@ class SCIMParser(Parser):
     precedence = (
         ('nonassoc', OR),
         ('nonassoc', AND),
-        ('nonassoc', NOT),
+        ('right', NOT),
     )
 
     # FILTER    = attrExp / logExp / valuePath / *1"not" "(" FILTER ")"
@@ -127,9 +127,9 @@ class SCIMParser(Parser):
     def filter(self, p):
         return ast.Filter(p.filter, None, None)
 
-    @_('filter NOT filter')
+    @_('NOT filter')
     def filter(self, p):
-        return ast.Filter(p.filter0, p.filter1, True)
+        return ast.Filter(p.filter, None, True)
 
     # valuePath = attrPath "[" valFilter "]"
     #            ; FILTER uses sub-attributes of a parent attrPath

@@ -34,6 +34,13 @@ class SCIMToSQLTranspiler(SCIMTranspiler):
 
         return expr1
 
+    def visit_LogExpr(self, node):
+        expr1 = self.visit(node.expr1)
+        expr2 = self.visit(node.expr2)
+        op = node.op.upper()
+
+        return f'({expr1}) {op} ({expr2})'
+
     def visit_AttrExpr(self, node):
         attr = self.visit(node.attr_path)
         op_sql = self.visit(node.op)
@@ -43,38 +50,51 @@ class SCIMToSQLTranspiler(SCIMTranspiler):
 
         # There is a comp_value, so visit node and build SQL.
         item_id = len(self.params)
-        self.params[item_id] = self.visit(node.comp_value)
 
         # prep item_id to be a str replacement placeholder
-        item_id = '{' + str(item_id) + '}'
+        item_id_placeholder = '{' + str(item_id) + '}'
 
         if '{}' in op_sql:
-            op_sql = op_sql.format(f'{item_id}')
-            return f'{attr} {op_sql}'
+            self.params[item_id] = self.visit(node.comp_value).strip("'")
+
+            return attr + ' ' + op_sql.format(f'{item_id_placeholder}')
         else:
-            return f"{attr} {op_sql} '{item_id}'"
+            self.params[item_id] = self.visit(node.comp_value)
+
+            return f"{attr} {op_sql} {item_id_placeholder}"
 
     def lookup_attr(self, attr_name, sub_attr, uri):
         # Convert attr_name to another value based on map.
         # Otherwise, return value.
-        value = self.attr_map.get(attr_name)
-        if isinstance(value, dict):
-            value = value.get(sub_attr)
-
-            if isinstance(value, dict):
-                return value.get(uri)
-
-            else:
-                return value
-
-        else:
+        value = self.attr_map.get((attr_name, sub_attr, uri))
+        if value:
             return value
 
+        if sub_attr:
+            return attr_name + '.' + sub_attr
+
+        return attr_name
+
     def visit_AttrPath(self, node):
-        return self.lookup_attr(node.attr_name, node.sub_attr, node.uri)
+        attr_name_value = node.attr_name.lower()
+
+        sub_attr_value = None
+        if node.sub_attr:
+            sub_attr_value = node.sub_attr.value.lower()
+
+        uri_value = None
+        if node.uri:
+            uri_value = node.uri.lower()
+
+        return self.lookup_attr(attr_name_value, sub_attr_value, uri_value)
 
     def visit_CompValue(self, node):
-        return node.value
+        if node.value in ('true', 'false', 'null'):
+            return node.value.upper()
+
+        # Handle timestamps!
+
+        return f"'{node.value}'"
 
     def lookup_op(self, node_value):
         sql = {
@@ -113,7 +133,9 @@ def main():
     token_stream = SCIMLexer().tokenize(sys.argv[1])
     ast = SCIMParser().parse(token_stream)
     attr_map = {
-        'userName': 'users.username',
+        ('username', None, None): 'users.username',
+        ('name', 'familyname', None): 'users.family_name',
+        ('meta', 'lastmodified', None): 'update_ts',
     }
     sql, params = SCIMToSQLTranspiler(attr_map).transpile(ast)
 

@@ -224,3 +224,22 @@ class SCIMLexer(Lexer):
         print(f"Illegal character '{t.value[0]}'")
         self.index += 1
 
+
+def main():
+    '''
+    Main program. Used for testing.
+    '''
+    import sys
+
+    if len(sys.argv) != 2:
+        sys.stderr.write('Usage: python -m scim2_filter_parser.lexer <filter>\n')
+        raise SystemExit(1)
+
+    token_stream = SCIMLexer().tokenize(sys.argv[1])
+    for token in token_stream:
+        print(token)
+
+
+if __name__ == '__main__':
+    main()
+
