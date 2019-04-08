@@ -12,8 +12,6 @@ class SCIMTranspiler(ast.NodeTransformer):
     pass
 
 
-
-
 class SCIMToSQLTranspiler(SCIMTranspiler):
 
     def __init__(self, attr_map, *args, **kwargs):
