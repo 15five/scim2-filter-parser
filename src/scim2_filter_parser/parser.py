@@ -113,31 +113,37 @@ class SCIMParser(Parser):
     #                                           ; 0 or 1 "not"s
     @_('attr_exp')
     def filter(self, p):
-        return ast.Filter(p.attr_exp, False)
+        return ast.Filter(p.attr_exp, False, None)
 
     @_('log_exp')
     def filter(self, p):
-        return ast.Filter(p.log_exp, False)
+        return ast.Filter(p.log_exp, False, None)
 
     @_('value_path')
     def filter(self, p):
-        return ast.Filter(p.value_path, False)
+        return ast.Filter(p.value_path, False, None)
 
     @_('LPAREN filter RPAREN',
        'NOT LPAREN filter RPAREN')
     def filter(self, p):
         negate = p[0].lower() == 'not'
-        return ast.Filter(p.filter, negate)
+        return ast.Filter(p.filter, negate, None)
 
     # valuePath = attrPath "[" valFilter "]"
     #            ; FILTER uses sub-attributes of a parent attrPath
     # valFilter = attrExp / logExp / *1"not" "(" valFilter ")"
     #                               ; 0 or 1 "not"s
+    #
     # Since valFilter and Filter have the same structure, we have to
     # parse valFilter as a Filter. Else we'll run into reduce/reduce conflicts.
+    #
+    # attr_path here acts like a namespace for the filter operation inside
+    # the brackets. Thus we need to distribute the namespace to the leaf nodes
+    # of the filter node. We will attach attr_path to the filter and use
+    # it in the transpiler.
     @_('attr_path LBRACKET filter RBRACKET')
     def value_path(self, p):
-        return ast.ValuePath(p.attr_path, p.filter)
+        return ast.Filter(p.filter, False, p.attr_path)
 
     # attrExp   = (attrPath SP "pr") /
     #             (attrPath SP compareOp SP compValue)

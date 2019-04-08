@@ -5,6 +5,8 @@ import ast
 
 from sly import Parser
 
+from . import ast as scim2ast
+
 
 class SCIMTranspiler(ast.NodeTransformer):
     pass
@@ -26,13 +28,29 @@ class SCIMToSQLTranspiler(SCIMTranspiler):
         return sql, self.params
 
     def visit_Filter(self, node):
-        expr1 = self.visit(node.expr1)
-        expr2 = None
-        if node.expr2:
-            expr2 = self.visit(node.expr2)
+        if node.namespace:
+            # rebuild node with namespace from value path
+            if isinstance(node.expr, scim2ast.Filter):
+                node.expr = scim2ast.Filter(node.expr.expr, node.expr.negated, node.namespace)
+            elif isinstance(node.expr, scim2ast.LogExpr):
+                expr1 = scim2ast.Filter(node.expr.expr1.expr, node.expr.expr1.negated, node.namespace)
+                expr2 = scim2ast.Filter(node.expr.expr2.expr, node.expr.expr2.negated, node.namespace)
+                node.expr = scim2ast.LogExpr(node.expr.op, expr1, expr2)
+            elif isinstance(node.expr, scim2ast.AttrExpr):
+                # namespace takes place of previous attr_name in attr_path
+                sub_attr = scim2ast.SubAttr(node.expr.attr_path.attr_name)
+                attr_path = scim2ast.AttrPath(node.namespace.attr_name, sub_attr, node.expr.attr_path.uri)
+                node.expr = scim2ast.AttrExpr(node.expr.value, attr_path, node.expr.comp_value)
+            else:
+                raise NotImplementedError(f'Node {node} can not pass on namespace')
+
+        expr = self.visit(node.expr)
         negated = node.negated
 
-        return expr1
+        if node.negated:
+            expr = f'NOT ({expr})'
+
+        return expr
 
     def visit_LogExpr(self, node):
         expr1 = self.visit(node.expr1)
@@ -43,7 +61,7 @@ class SCIMToSQLTranspiler(SCIMTranspiler):
 
     def visit_AttrExpr(self, node):
         attr = self.visit(node.attr_path)
-        op_sql = self.visit(node.op)
+        op_sql = self.lookup_op(node.value)
 
         if not node.comp_value:
             return f'{attr} {op_sql}'
@@ -111,10 +129,6 @@ class SCIMToSQLTranspiler(SCIMTranspiler):
         }.get(node_value.lower())
 
         return sql or node_value
-
-    def visit_AttrExprOp(self, node):
-        return self.lookup_op(node.value)
-
 
 
 def main():

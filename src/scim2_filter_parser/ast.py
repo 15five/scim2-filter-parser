@@ -75,6 +75,18 @@ class AST(object):
 # Abstract AST nodes.  These are not instantiated directly, but other
 # classes inherit from them.
 
+class Filter(AST):
+    expr      : AST
+    negated   : bool
+    namespace : AST
+
+
+class LogExpr(AST):
+    op    : str
+    expr1 : Filter
+    expr2 : Filter
+
+
 class SubAttr(AST):
     value : str
 
@@ -94,26 +106,6 @@ class AttrExpr(AST):
     attr_path  : AttrPath
     comp_value : CompValue
 
-
-class ValueFilter(AST):
-    expr    : (AST, type(None))
-    negated : (bool, type(None))
-
-
-class ValuePath(AST):
-    attr_path    : AttrPath
-    value_filter : ValueFilter
-
-
-class Filter(AST):
-    expr     : AST
-    negated  : bool
-
-
-class LogExpr(AST):
-    op     : str
-    expr1  : Filter
-    expr2  : Filter
 
 # The following classes for visiting and rewriting the AST are taken
 # from Python's ast module.   It's really easy to make mistakes when
