@@ -1,10 +1,11 @@
 import sqlite3
-from unittest import TestCase
+import unittest
 
 from scim2_filter_parser.query import SQLiteQuery
 
 
-class RFCExamples(TestCase):
+class RFCExamples(unittest.TestCase):
+    maxDiff = None
 
     CREATE_TABLE_USER = '''
     CREATE TABLE users
@@ -23,8 +24,15 @@ class RFCExamples(TestCase):
     INSERT INTO users
         (username, first_name, last_name, title, update_ts, user_type)
     VALUES
-        ('bjensen', 'Brie', 'Jensen', 'CEO', '2018-10-15 12:00:51.123', 'Employee'),
-        ('momalley', 'Mike', 'O''Malley', 'Teacher', '2018-10-15 12:00:51.123', 'Employee')
+        ('bjensen', 'Brie', 'Jensen', NULL, NULL, NULL),
+        ('momalley', 'Mike', 'O''Malley', NULL, NULL, NULL),
+        ('Jacob', 'Jacob', 'Jingleheimer', 'Friend', NULL, 'Employee'),
+        ('crobertson', 'Carly', 'Robertson', NULL, NULL, 'Intern'),
+
+        ('gt', 'Gina', 'Taylor', NULL, '2012-05-13T04:42:34Z', NULL),
+        ('ge', 'Greg', 'Edgar', NULL, '2011-05-13T04:42:34Z', NULL),
+        ('lt', 'Lisa', 'Ting', NULL, '2010-05-13T04:42:34Z', NULL),
+        ('le', 'Linda', 'Euler', NULL, '2011-05-13T04:42:34Z', NULL)
     '''
 
     CREATE_TABLE_EMAIL = '''
@@ -52,7 +60,14 @@ class RFCExamples(TestCase):
     ATTR_MAP = {
         # attr_name, sub_attr, uri: table name
         ('username', None, None): 'username',
+        ('usertype', None, None): 'user_type',
+        ('name', 'familyname', None): 'last_name',
+        ('emails', 'type', None): 'emails.type',
+        ('meta', 'lastmodified', None): 'update_ts',
     }
+
+    # TODO if attribute is not in listed columns, don't pass it through.
+    # could be a SQL injection attack
 
     def setUp(self):
         self.conn = sqlite3.connect(':memory:')
@@ -73,112 +88,111 @@ class RFCExamples(TestCase):
     def test_username_eq(self):
         query = 'userName eq "bjensen"'
         expected_rows = [
-            (1, 'bjensen', 'Brie', 'Jensen', 'CEO', '2018-10-15 12:00:51.123', 'Employee')
+            (1, 'bjensen', 'Brie', 'Jensen', None, None, None)
         ]
         self.assertRows(query, expected_rows)
 
     def test_family_name_contains(self):
         query = '''name.familyName co "O'Malley"'''
         expected_rows = [
-            (1, 'bjensen', 'Brie', 'Jensen', 'CEO', '2018-10-15 12:00:51.123', 'Employee')
+            (2, 'momalley', 'Mike', "O'Malley", None, None, None),
         ]
         self.assertRows(query, expected_rows)
 
     def test_username_startswith(self):
         query = 'userName sw "J"'
         expected_rows = [
-            (1, 'bjensen', 'Brie', 'Jensen', 'CEO', '2018-10-15 12:00:51.123', 'Employee')
+            (3, 'Jacob', 'Jacob', 'Jingleheimer', 'Friend', None, 'Employee'),
         ]
         self.assertRows(query, expected_rows)
 
     def test_schema_username_startswith(self):
         query = 'urn:ietf:params:scim:schemas:core:2.0:User:userName sw "J"'
         expected_rows = [
-            (1, 'bjensen', 'Brie', 'Jensen', 'CEO', '2018-10-15 12:00:51.123', 'Employee')
         ]
         self.assertRows(query, expected_rows)
 
     def test_title_has_value(self):
         query = 'title pr'
         expected_rows = [
-            (1, 'bjensen', 'Brie', 'Jensen', 'CEO', '2018-10-15 12:00:51.123', 'Employee')
+            (3, 'Jacob', 'Jacob', 'Jingleheimer', 'Friend', None, 'Employee'),
         ]
         self.assertRows(query, expected_rows)
 
     def test_meta_last_modified_gt(self):
         query = 'meta.lastModified gt "2011-05-13T04:42:34Z"'
         expected_rows = [
-            (1, 'bjensen', 'Brie', 'Jensen', 'CEO', '2018-10-15 12:00:51.123', 'Employee')
+            (5, 'gt', 'Gina', 'Taylor', None, '2012-05-13T04:42:34Z', None),
         ]
         self.assertRows(query, expected_rows)
 
     def test_meta_last_modified_ge(self):
         query = 'meta.lastModified ge "2011-05-13T04:42:34Z"'
         expected_rows = [
-            (1, 'bjensen', 'Brie', 'Jensen', 'CEO', '2018-10-15 12:00:51.123', 'Employee')
+            (5, 'gt', 'Gina', 'Taylor', None, '2012-05-13T04:42:34Z', None),
+            (6, 'ge', 'Greg', 'Edgar', None, '2011-05-13T04:42:34Z', None),
+            (8, 'le', 'Linda', 'Euler', None, '2011-05-13T04:42:34Z', None)
         ]
         self.assertRows(query, expected_rows)
 
     def test_meta_last_modified_lt(self):
         query = 'meta.lastModified lt "2011-05-13T04:42:34Z"'
         expected_rows = [
-            (1, 'bjensen', 'Brie', 'Jensen', 'CEO', '2018-10-15 12:00:51.123', 'Employee')
+            (7, 'lt', 'Lisa', 'Ting', None, '2010-05-13T04:42:34Z', None),
         ]
         self.assertRows(query, expected_rows)
 
     def test_meta_last_modified_le(self):
         query = 'meta.lastModified le "2011-05-13T04:42:34Z"'
         expected_rows = [
-            (1, 'bjensen', 'Brie', 'Jensen', 'CEO', '2018-10-15 12:00:51.123', 'Employee')
+            (5, 'gt', 'Gina', 'Taylor', None, '2012-05-13T04:42:34Z', None),
+            (6, 'ge', 'Greg', 'Edgar', None, '2011-05-13T04:42:34Z', None),
+            (8, 'le', 'Linda', 'Euler', None, '2011-05-13T04:42:34Z', None)
         ]
         self.assertRows(query, expected_rows)
 
     def test_title_has_value_and_user_type_eq(self):
         query = 'title pr and userType eq "Employee"'
         expected_rows = [
-            (1, 'bjensen', 'Brie', 'Jensen', 'CEO', '2018-10-15 12:00:51.123', 'Employee')
+            (3, 'Jacob', 'Jacob', 'Jingleheimer', 'Friend', None, 'Employee'),
         ]
         self.assertRows(query, expected_rows)
 
     def test_title_has_value_or_user_type_eq(self):
         query = 'title pr or userType eq "Intern"'
         expected_rows = [
-            (1, 'bjensen', 'Brie', 'Jensen', 'CEO', '2018-10-15 12:00:51.123', 'Employee')
+            (3, 'Jacob', 'Jacob', 'Jingleheimer', 'Friend', None, 'Employee'),
+            (4, 'crobertson', 'Carly', 'Robertson', None, None, 'Intern'),
         ]
         self.assertRows(query, expected_rows)
 
     def test_schemas_eq(self):
         query = 'schemas eq "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User"'
         expected_rows = [
-            (1, 'bjensen', 'Brie', 'Jensen', 'CEO', '2018-10-15 12:00:51.123', 'Employee')
         ]
         self.assertRows(query, expected_rows)
 
     def test_user_type_eq_and_email_contains_or_email_contains(self):
         query = 'userType eq "Employee" and (emails co "example.com" or emails.value co "example.org")'
         expected_rows = [
-            (1, 'bjensen', 'Brie', 'Jensen', 'CEO', '2018-10-15 12:00:51.123', 'Employee')
         ]
         self.assertRows(query, expected_rows)
 
     def test_user_type_ne_and_not_email_contains_or_email_contains(self):
         query = 'userType ne "Employee" and not (emails co "example.com" or emails.value co "example.org")'
         expected_rows = [
-            (1, 'bjensen', 'Brie', 'Jensen', 'CEO', '2018-10-15 12:00:51.123', 'Employee')
         ]
         self.assertRows(query, expected_rows)
 
     def test_user_type_eq_and_not_email_type_eq(self):
         query = 'userType eq "Employee" and (emails.type eq "work")'
         expected_rows = [
-            (1, 'bjensen', 'Brie', 'Jensen', 'CEO', '2018-10-15 12:00:51.123', 'Employee')
         ]
         self.assertRows(query, expected_rows)
 
     def test_user_type_eq_and_not_email_type_eq_work_and_value_contains(self):
         query = 'userType eq "Employee" and emails[type eq "work" and value co "@example.com"]'
         expected_rows = [
-            (1, 'bjensen', 'Brie', 'Jensen', 'CEO', '2018-10-15 12:00:51.123', 'Employee')
         ]
         self.assertRows(query, expected_rows)
 
@@ -186,7 +200,6 @@ class RFCExamples(TestCase):
         query = ('emails[type eq "work" and value co "@example.com"] or '
                  'ims[type eq "xmpp" and value co "@foo.com"]')
         expected_rows = [
-            (1, 'bjensen', 'Brie', 'Jensen', 'CEO', '2018-10-15 12:00:51.123', 'Employee')
         ]
         self.assertRows(query, expected_rows)
 
