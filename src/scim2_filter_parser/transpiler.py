@@ -1,5 +1,6 @@
 """
-This module builds SQL queries based on SCIM queries
+The logic in this module builds a portion of a WHERE SQL
+clause based on a SCIM filter.
 """
 import ast
 
@@ -13,6 +14,9 @@ class SCIMTranspiler(ast.NodeTransformer):
 
 
 class SCIMToSQLTranspiler(SCIMTranspiler):
+    """
+    Transpile a SCIM AST into a SQL WHERE clause (not including the "WHERE" keyword)
+    """
 
     def __init__(self, attr_map, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -71,13 +75,13 @@ class SCIMToSQLTranspiler(SCIMTranspiler):
         item_id_placeholder = '{' + str(item_id) + '}'
 
         if '{}' in op_sql:
-            self.params[item_id] = self.visit(node.comp_value).strip("'")
+            self.params[item_id] = self.visit(node.comp_value)
 
             return attr + ' ' + op_sql.format(f'{item_id_placeholder}')
         else:
             self.params[item_id] = self.visit(node.comp_value)
 
-            return f"{attr} {op_sql} {item_id_placeholder}"
+            return f"{attr} {op_sql} '{item_id_placeholder}'"
 
     def lookup_attr(self, attr_name, sub_attr, uri):
         # Convert attr_name to another value based on map.
@@ -108,9 +112,9 @@ class SCIMToSQLTranspiler(SCIMTranspiler):
         if node.value in ('true', 'false', 'null'):
             return node.value.upper()
 
-        # Handle timestamps!
+        # TODO: Handle timestamps!
 
-        return f"'{node.value}'"
+        return node.value
 
     def lookup_op(self, node_value):
         sql = {
@@ -145,6 +149,7 @@ def main():
     token_stream = SCIMLexer().tokenize(sys.argv[1])
     ast = SCIMParser().parse(token_stream)
     attr_map = {
+        # (attr_name, sub_attr, uri)
         ('username', None, None): 'users.username',
         ('name', 'familyname', None): 'users.family_name',
         ('meta', 'lastmodified', None): 'update_ts',
