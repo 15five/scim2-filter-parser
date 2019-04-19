@@ -40,7 +40,11 @@ class Query:
         joins = '\n'.join(self.joins)
         if joins:
             joins += '\n'
-        return f'SELECT * FROM {self.table_name}\n{joins}WHERE {where_sql};'
+        return f'''
+        SELECT {self.table_name}.*
+        FROM {self.table_name}
+        {joins}WHERE {where_sql};
+        '''.strip()
 
     def __str__(self) -> str:
         orig_placeholder = self.placeholder
