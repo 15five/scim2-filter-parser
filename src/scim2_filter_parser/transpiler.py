@@ -131,7 +131,7 @@ class SCIMToSQLTranspiler(SCIMTranspiler):
             'gt': '>',
             'ge': '>=',
             'lt': '<',
-            'le': '=<',
+            'le': '<=',
         }.get(op_code)
 
         if not sql:

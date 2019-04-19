@@ -70,7 +70,7 @@ class RFCExamples(TestCase):
 
     def test_meta_last_modified_le(self):
         query = 'meta.lastModified le "2011-05-13T04:42:34Z"'
-        sql = "meta.lastmodified =< {0}"
+        sql = "meta.lastmodified <= {0}"
         params = {0: '2011-05-13T04:42:34Z'}
         self.assertSQL(query, sql, params)
 
