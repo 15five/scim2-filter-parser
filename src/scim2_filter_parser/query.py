@@ -9,10 +9,11 @@ from .transpiler import SCIMToSQLTranspiler
 class Query:
     placeholder = '%s'
 
-    def __init__(self, filter_, table_name, attr_map):
+    def __init__(self, filter_, table_name, attr_map, joins=()):
         self.filter: str = filter_
         self.table_name: str = table_name
         self.attr_map: dict = attr_map
+        self.joins = joins
         self.where_sql: str = None
         self.where_params: dict = None
         self.params: list = None
@@ -35,7 +36,11 @@ class Query:
         # connectors can override this with their own placeholder character.
         placeholders = [self.placeholder for i in range(len(self.params))]
         where_sql = self.where_sql.format(*placeholders)
-        return f'SELECT * FROM {self.table_name} WHERE {where_sql};'
+        # Stitch all joins together
+        joins = '\n'.join(self.joins)
+        if joins:
+            joins += '\n'
+        return f'SELECT * FROM {self.table_name}\n{joins}WHERE {where_sql};'
 
     def __str__(self) -> str:
         orig_placeholder = self.placeholder
@@ -68,7 +73,12 @@ def main():
         ('meta', 'lastmodified', None): 'update_ts',
     }
 
-    q = SQLiteQuery(sys.argv[1], 'users', attr_map)
+    joins = (
+        'LEFT JOIN emails ON emails.user_id = users.id',
+        'LEFT JOIN schemas ON schemas.user_id = users.id',
+    )
+
+    q = SQLiteQuery(sys.argv[1], 'users', attr_map, joins)
 
     print(q)
 
