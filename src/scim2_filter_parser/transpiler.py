@@ -74,14 +74,16 @@ class SCIMToSQLTranspiler(SCIMTranspiler):
         # prep item_id to be a str replacement placeholder
         item_id_placeholder = '{' + str(item_id) + '}'
 
-        if '{}' in op_sql:
-            self.params[item_id] = self.visit(node.comp_value)
-
-            return attr + ' ' + op_sql.format(f'{item_id_placeholder}')
+        if 'LIKE' == op_sql:
+            # Add appropriate % signs to values in LIKE clause
+            prefix, suffix = self.lookup_like_fixes(node.value)
+            value = prefix + self.visit(node.comp_value) + suffix
         else:
-            self.params[item_id] = self.visit(node.comp_value)
+            value = self.visit(node.comp_value)
 
-            return f"{attr} {op_sql} '{item_id_placeholder}'"
+        self.params[item_id] = value
+
+        return f'{attr} {op_sql} {item_id_placeholder}'
 
     def lookup_attr(self, attr_name, sub_attr, uri):
         # Convert attr_name to another value based on map.
@@ -117,20 +119,39 @@ class SCIMToSQLTranspiler(SCIMTranspiler):
         return node.value
 
     def lookup_op(self, node_value):
+        op_code = node_value.lower()
+
         sql = {
             'eq': '=',
             'ne': '!=',
-            'co': "LIKE '%{}%'",
-            'sw': "LIKE '{}%'",
-            'ew': "LIKE '%{}'",
+            'co': 'LIKE',
+            'sw': 'LIKE',
+            'ew': 'LIKE',
             'pr': 'IS NOT NULL',
             'gt': '>',
             'ge': '>=',
             'lt': '<',
             'le': '=<',
-        }.get(node_value.lower())
+        }.get(op_code)
+
+        if not sql:
+            raise ValueError(f'Unknown SQL op {op_code}')
 
         return sql or node_value
+
+    def lookup_like_fixes(self, node_value):
+        op_code = node_value.lower()
+
+        sql = {
+            'co': ('%', '%'),
+            'sw': ('', '%'),
+            'ew': ('%', ''),
+        }.get(op_code)
+
+        if not sql:
+            raise ValueError(f'Unknown SQL LIKE op {op_code}')
+
+        return sql
 
 
 def main():
