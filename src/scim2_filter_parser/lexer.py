@@ -221,8 +221,7 @@ class SCIMLexer(Lexer):
         return t
 
     def error(self, t):
-        print(f"Illegal character '{t.value[0]}'")
-        self.index += 1
+        raise ValueError(f"Illegal character in filter query '{t.value[0]}'")
 
 
 def main(argv=None):
