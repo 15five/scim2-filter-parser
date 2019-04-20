@@ -201,17 +201,20 @@ class SCIMParser(Parser):
         return ast.SubAttr(p[1])
 
 
-def main():
+def main(argv=None):
     '''
     Main program. Used for testing.
     '''
+    import argparse
     import sys
 
-    if len(sys.argv) != 2:
-        sys.stderr.write('Usage: python -m scim2_filter_parser.parser <filter>\n')
-        raise SystemExit(1)
+    argv = argv or sys.argv[1:]
 
-    token_stream = lexer.SCIMLexer().tokenize(sys.argv[1])
+    parser = argparse.ArgumentParser('SCIM 2.0 Filter Parser Parser')
+    parser.add_argument('filter', help="""Eg. 'userName eq "bjensen"'""")
+    args = parser.parse_args(argv)
+
+    token_stream = lexer.SCIMLexer().tokenize(args.filter)
     ast_nodes = SCIMParser().parse(token_stream)
 
     # Output the resulting parse tree structure

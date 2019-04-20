@@ -251,7 +251,6 @@ class RFCExamples(TestCase):
         self.assertTokens(query, expected)
 
 
-
 class CommandLine(TestCase):
     def setUp(self):
         self.org_stdout = sys.stdout
