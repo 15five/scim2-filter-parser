@@ -1,8 +1,10 @@
+from io import StringIO
+import sys
 from unittest import TestCase
 
+from scim2_filter_parser import transpiler
 from scim2_filter_parser.lexer import SCIMLexer
 from scim2_filter_parser.parser import SCIMParser
-from scim2_filter_parser.transpiler import SCIMToSQLTranspiler
 
 
 class RFCExamples(TestCase):
@@ -10,7 +12,7 @@ class RFCExamples(TestCase):
     def setUp(self):
         self.lexer = SCIMLexer()
         self.parser = SCIMParser()
-        self.transpiler = SCIMToSQLTranspiler({})
+        self.transpiler = transpiler.SCIMToSQLTranspiler({})
 
     def assertSQL(self, query, expected_sql, expected_params):
         tokens = self.lexer.tokenize(query)
@@ -122,4 +124,22 @@ class RFCExamples(TestCase):
         sql = "((emails.type = {0}) AND (emails.value LIKE {1})) OR ((ims.type = {2}) AND (ims.value LIKE {3}))"
         params = {0: 'work', 1: '%@example.com%', 2: 'xmpp', 3: '%@foo.com%'}
         self.assertSQL(query, sql, params)
+
+
+class CommandLine(TestCase):
+    def setUp(self):
+        self.original_stdout = sys.stdout
+        sys.stdout = self.test_stdout = StringIO()
+
+    def tearDown(self):
+        sys.stdout = self.original_stdout
+
+    def test_command_line(self):
+        transpiler.main(['userName eq "bjensen"'])
+        result = self.test_stdout.getvalue().strip().split('\n')
+        expected = [
+            'SQL: users.username = {0}',
+            "PARAMS: {0: 'bjensen'}"
+        ]
+        self.assertEqual(result, expected)
 

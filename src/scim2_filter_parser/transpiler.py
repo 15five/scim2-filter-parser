@@ -154,20 +154,23 @@ class SCIMToSQLTranspiler(SCIMTranspiler):
         return sql
 
 
-def main():
+def main(argv=None):
     '''
     Main program. Used for testing.
     '''
+    import argparse
     import sys
 
-    from .lexer import SCIMLexer
-    from .parser import SCIMParser
+    from scim2_filter_parser.lexer import SCIMLexer
+    from scim2_filter_parser.parser import SCIMParser
 
-    if len(sys.argv) != 2:
-        sys.stderr.write('Usage: python -m scim2_filter_parser.transpiler <filter>\n')
-        raise SystemExit(1)
+    argv = argv or sys.argv[1:]
 
-    token_stream = SCIMLexer().tokenize(sys.argv[1])
+    parser = argparse.ArgumentParser('SCIM 2.0 Filter Parser Transpiler')
+    parser.add_argument('filter', help="""Eg. 'userName eq "bjensen"'""")
+    args = parser.parse_args(argv)
+
+    token_stream = SCIMLexer().tokenize(args.filter)
     ast = SCIMParser().parse(token_stream)
     attr_map = {
         # (attr_name, sub_attr, uri)
@@ -177,8 +180,8 @@ def main():
     }
     sql, params = SCIMToSQLTranspiler(attr_map).transpile(ast)
 
-    print(sql)
-    print(params)
+    print('SQL:', sql)
+    print('PARAMS:', params)
 
 
 if __name__ == '__main__':

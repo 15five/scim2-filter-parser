@@ -253,11 +253,11 @@ class RFCExamples(TestCase):
 
 class CommandLine(TestCase):
     def setUp(self):
-        self.org_stdout = sys.stdout
+        self.original_stdout = sys.stdout
         sys.stdout = self.test_stdout = StringIO()
 
     def tearDown(self):
-        sys.stdout = self.org_stdout
+        sys.stdout = self.original_stdout
 
     def test_command_line(self):
         lexer.main(['userName eq "bjensen"'])

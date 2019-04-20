@@ -36,15 +36,18 @@ class Query:
         # connectors can override this with their own placeholder character.
         placeholders = [self.placeholder for i in range(len(self.params))]
         where_sql = self.where_sql.format(*placeholders)
-        # Stitch all joins together
-        joins = '\n'.join(self.joins)
-        if joins:
-            joins += '\n'
-        return f'''
-        SELECT {self.table_name}.*
-        FROM {self.table_name}
-        {joins}WHERE {where_sql};
-        '''.strip()
+
+        lines = [
+            f'SELECT {self.table_name}.*',
+            f'FROM {self.table_name}',
+        ]
+
+        if self.joins:
+            lines.extend(self.joins)
+
+        lines.append(f'WHERE {where_sql};')
+
+        return '\n'.join('    ' + line for line in lines)
 
     def __str__(self) -> str:
         orig_placeholder = self.placeholder
@@ -54,22 +57,33 @@ class Query:
 
         # Wrap the SQL in invalid characters so users don't accidentally
         # walk into a SQL Injection vulnerability.
-        return '>>>' + sql + '<<<'
+        return '\n'.join((
+            '>>> DO NOT USE THIS OUTPUT DIRECTLY',
+            '>>> SQL INJECTION ATTACK RISK',
+            '>>> SQL PREVIEW:',
+            sql,
+        ))
 
 
 class SQLiteQuery(Query):
     placeholder = '?'
 
 
-def main():
+def main(argv=None):
     '''
     Main program. Used for testing.
     '''
+    import argparse
     import sys
 
-    if len(sys.argv) != 2:
-        sys.stderr.write('Usage: python -m scim2_filter_parser.query <filter>\n')
-        raise SystemExit(1)
+    from scim2_filter_parser.lexer import SCIMLexer
+    from scim2_filter_parser.parser import SCIMParser
+
+    argv = argv or sys.argv[1:]
+
+    parser = argparse.ArgumentParser('SCIM 2.0 Filter Parser Transpiler')
+    parser.add_argument('filter', help="""Eg. 'userName eq "bjensen"'""")
+    args = parser.parse_args(argv)
 
     attr_map = {
         ('username', None, None): 'users.username',
@@ -82,7 +96,7 @@ def main():
         'LEFT JOIN schemas ON schemas.user_id = users.id',
     )
 
-    q = SQLiteQuery(sys.argv[1], 'users', attr_map, joins)
+    q = SQLiteQuery(args.filter, 'users', attr_map, joins)
 
     print(q)
 

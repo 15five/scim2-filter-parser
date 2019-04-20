@@ -1,7 +1,9 @@
+from io import StringIO
 import sqlite3
+import sys
 import unittest
 
-from scim2_filter_parser.query import SQLiteQuery
+from scim2_filter_parser import query as scim2_query
 
 
 class RFCExamples(unittest.TestCase):
@@ -123,7 +125,7 @@ class RFCExamples(unittest.TestCase):
         self.conn.commit()
 
     def assertRows(self, query, expected_rows):
-        q = SQLiteQuery(query, 'users', self.ATTR_MAP, self.JOINS)
+        q = scim2_query.SQLiteQuery(query, 'users', self.ATTR_MAP, self.JOINS)
         self.cursor.execute(q.sql, q.params)
         results = self.cursor.fetchall()
 
@@ -254,4 +256,29 @@ class RFCExamples(unittest.TestCase):
             (3, 'Jacob', 'Jacob', 'Jingleheimer', 'Friend', None, 'Employee'),
         ]
         self.assertRows(query, expected_rows)
+
+
+class CommandLine(unittest.TestCase):
+    def setUp(self):
+        self.original_stdout = sys.stdout
+        sys.stdout = self.test_stdout = StringIO()
+
+    def tearDown(self):
+        sys.stdout = self.original_stdout
+
+    def test_command_line(self):
+        scim2_query.main(['userName eq "bjensen"'])
+        result = self.test_stdout.getvalue().strip().split('\n')
+
+        expected = [
+            '>>> DO NOT USE THIS OUTPUT DIRECTLY',
+            '>>> SQL INJECTION ATTACK RISK',
+            '>>> SQL PREVIEW:',
+            '    SELECT users.*',
+            '    FROM users',
+            '    LEFT JOIN emails ON emails.user_id = users.id',
+            '    LEFT JOIN schemas ON schemas.user_id = users.id',
+            '    WHERE users.username = bjensen;'
+        ]
+        self.assertEqual(result, expected)
 
