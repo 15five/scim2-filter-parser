@@ -29,6 +29,11 @@ setup(
     install_requires=[
         'sly==0.3',
     ],
+    entry_points = {
+        'console_scripts': [
+            'sfp-lexer=scim2_filter_parser.lexer:main'
+        ],
+    },
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],
     zip_safe=False,

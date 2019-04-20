@@ -1,11 +1,13 @@
+from io import StringIO
+import sys
 from unittest import TestCase
 
-from scim2_filter_parser.lexer import SCIMLexer
+from scim2_filter_parser import lexer
 
 
 class RFCExamples(TestCase):
     def setUp(self):
-        self.lexer = SCIMLexer()
+        self.lexer = lexer.SCIMLexer()
 
     def get_token_tuples(self, query):
         return self.lexer.tokenize(query)
@@ -247,4 +249,24 @@ class RFCExamples(TestCase):
             ('RBRACKET', ']')
         ]
         self.assertTokens(query, expected)
+
+
+
+class CommandLine(TestCase):
+    def setUp(self):
+        self.org_stdout = sys.stdout
+        sys.stdout = self.test_stdout = StringIO()
+
+    def tearDown(self):
+        sys.stdout = self.org_stdout
+
+    def test_command_line(self):
+        lexer.main(['userName eq "bjensen"'])
+        result = self.test_stdout.getvalue().strip().split('\n')
+        expected = [
+            "Token(type='ATTRNAME', value='userName', lineno=1, index=0)",
+            "Token(type='EQ', value='eq', lineno=1, index=9)",
+            "Token(type='COMP_VALUE', value='bjensen', lineno=1, index=12)",
+        ]
+        self.assertEqual(result, expected)
 

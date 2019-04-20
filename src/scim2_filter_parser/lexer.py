@@ -225,17 +225,20 @@ class SCIMLexer(Lexer):
         self.index += 1
 
 
-def main():
+def main(argv=None):
     '''
     Main program. Used for testing.
     '''
+    import argparse
     import sys
 
-    if len(sys.argv) != 2:
-        sys.stderr.write('Usage: python -m scim2_filter_parser.lexer <filter>\n')
-        raise SystemExit(1)
+    argv = argv or sys.argv[1:]
 
-    token_stream = SCIMLexer().tokenize(sys.argv[1])
+    parser = argparse.ArgumentParser('SCIM 2.0 Filter Parser Lexer')
+    parser.add_argument('filter', help="""Eg. 'userName eq "bjensen"'""")
+    args = parser.parse_args(argv)
+
+    token_stream = SCIMLexer().tokenize(args.filter)
     for token in token_stream:
         print(token)
 
