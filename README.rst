@@ -9,6 +9,9 @@ SCIM 2.0 Filter Parser
 .. |codecov| image:: https://codecov.io/gh/15five/scim2-filter-parser/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/15five/scim2-filter-parser
 
+Description
+-----------
+
 SCIM 2.0 defines queries that look like this::
 
     'emails[type eq "work" and value co "@example.com"] or ims[type eq "xmpp" and value co "@foo.com"]'
@@ -25,7 +28,7 @@ is broken down into many tokens that make it up.
 
 ::
 
-    python -m scim2_filter_parser.lexer 'emails[type eq "work" and value co "@example.com"] or ims[type eq "xmpp" and value co "@foo.com"]'
+    sfp-lexer 'emails[type eq "work" and value co "@example.com"] or ims[type eq "xmpp" and value co "@foo.com"]'
 
     Token(type='ATTRNAME', value='emails', lineno=1, index=0)
     Token(type='LBRACKET', value='[', lineno=1, index=6)
@@ -54,7 +57,7 @@ The second step is to convert that series of tokens into a abstract syntax tree.
 
 ::
 
-    python -m scim2_filter_parser.parser 'emails[type eq "work" and value co "@example.com"] or ims[type eq "xmpp" and value co "@foo.com"]'
+    sfp-parser 'emails[type eq "work" and value co "@example.com"] or ims[type eq "xmpp" and value co "@foo.com"]'
 
     Filter(expr=LogExpr, negated=False, namespace=None)
         LogExpr(op='or', expr1=Filter, expr2=Filter)
@@ -90,7 +93,7 @@ The above query is transpiled to SQL below.
 
 ::
 
-    python -m scim2_filter_parser.transpiler 'emails[type eq "work" and value co "@example.com"] or ims[type eq "xmpp" and value co "@foo.com"]'
+    sfp-transpiler 'emails[type eq "work" and value co "@example.com"] or ims[type eq "xmpp" and value co "@foo.com"]'
 
     ((emails.type = {0}) AND (emails.value LIKE {1})) OR ((ims.type = {2}) AND (ims.value LIKE {3}))
     {0: 'work', 1: '%@example.com%', 2: 'xmpp', 3: '%@foo.com%'}
@@ -100,19 +103,67 @@ the rest of the SQL query.
 
 ::
 
-    python -m scim2_filter_parser.query 'emails[type eq "work" and value co "@example.com"] or ims[type eq "xmpp" and value co "@foo.com"]'
+    sfp-query 'emails[type eq "work" and value co "@example.com"] or ims[type eq "xmpp" and value co "@foo.com"]'
 
-    >>>SELECT users.*
-            FROM users
-            LEFT JOIN emails ON emails.user_id = users.id
-    LEFT JOIN schemas ON schemas.user_id = users.id
-    WHERE ((emails.type = work) AND (emails.value LIKE %@example.com%)) OR ((ims.type = xmpp) AND (ims.value LIKE %@foo.com%));<<<
+    >>> DO NOT USE THIS OUTPUT DIRECTLY
+    >>> SQL INJECTION ATTACK RISK
+    >>> SQL PREVIEW:
+        SELECT users.*
+        FROM users
+        LEFT JOIN emails ON emails.user_id = users.id
+        LEFT JOIN schemas ON schemas.user_id = users.id
+        WHERE ((emails.type = work) AND (emails.value LIKE %@example.com%)) OR ((ims.type = xmpp) AND (ims.value LIKE %@foo.com%));
 
-Please note that SFP does not build SQL queries with parameters pre-injected. That would create a SQL injection attack vulnerability.
-Instead a `Query` object is created and can be forced to display itself as seen above by `print`ing the query object.
+Please note that SFP does not build SQL queries with parameters pre-injected. 
+That would create a SQL injection attack vulnerability. Instead a ``Query`` 
+object is created and can be forced to display itself as seen above
+by ``print`` ing the query object.
+
+Use
+---
+
+Although command line shims are provided, the library is intended to be used
+programmatically. Users of the library should instantiate the
+``scim2_filter_parser.query.Query`` class with an attribute map and optionally
+any joins necessary to make all required fields accessible in the query.
+
+For example, if user information is stored in the ``users`` table and email
+information is stored in a different table ``emails``, then the attribute map
+and the joins might be defined as so::
+
+    attr_map = {
+        ('username', None, None): 'users.username',
+        ('name', 'familyname', None): 'users.family_name',
+        ('meta', 'lastmodified', None): 'users.update_ts',
+        ('emails', None, None): 'emails.address',
+        ('emails', 'value', None): 'emails.address',
+    }
+
+    joins = (
+        'LEFT JOIN emails ON emails.user_id = users.id',
+    )
+
+    q = Query(filter, 'users', attr_map, joins)
+
+    q.sql # Will be equal to 'SELECT * FROM users ...
+    q.params # Will be equal to the paramters specific to the filter query.
+
+
+The attribute_map (``attr_map``) is a mapping of SCIM attribute, subattribute,
+and schema uri to a table field. You will need to customize this to your
+particular database schema.
+
+The ``Query.sql`` method returns SQL that can be used as the first
+argument in a call to ``cursor.execute()`` with your favorite DB engine.
+If you are using a database that requires a replacement character other than '%s',
+then you can subclass the ``Query`` class and override the ``placeholder`` class
+level variable. See the query module and unit tests for an example of this subclassing
+with SQLite.
+
+The ``Query.params`` method returns a list of items that can be used as the
+second argument in a call to ``cursor.execute()``.
 
 ---
 
 This project is still in its alpha stage of life and should be used accordingly.
-
 
