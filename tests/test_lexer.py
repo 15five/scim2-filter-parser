@@ -251,6 +251,56 @@ class RFCExamples(TestCase):
         self.assertTokens(query, expected)
 
 
+class AzureQueries(TestCase):
+    def setUp(self):
+        self.lexer = lexer.SCIMLexer()
+
+    def get_token_tuples(self, query):
+        return self.lexer.tokenize(query)
+
+    def assertTokens(self, query, expected):
+        token_tuples = [
+            (token.type, token.value) for token in self.get_token_tuples(query)
+        ]
+        self.assertEqual(expected, token_tuples)
+
+    def test_email_type_eq_primary_value_eq_uuid(self):
+        query = 'emails[type eq "Primary"].value eq "001750ca-8202-47cd-b553-c63f4f245940"'
+        expected = [
+            ('ATTRNAME', 'emails'),
+            ('LBRACKET', '['),
+            ('ATTRNAME', 'type'),
+            ('EQ', 'eq'),
+            ('COMP_VALUE', 'Primary'),
+            ('RBRACKET', ']'),
+            ('DOT', '.'),
+            ('ATTRNAME', 'value'),
+            ('EQ', 'eq'),
+            ('COMP_VALUE', '001750ca-8202-47cd-b553-c63f4f245940')
+        ]
+        self.assertTokens(query, expected)
+
+    def test_external_id_from_azure(self):
+        query = 'externalId eq "4d32ab19-ae09-4236-82fa-15768bc48a08"'
+        expected = [
+            ('ATTRNAME', 'externalId'),
+            ('EQ', 'eq'),
+            ('COMP_VALUE', '4d32ab19-ae09-4236-82fa-15768bc48a08')
+        ]
+        self.assertTokens(query, expected)
+
+    def test_parse_simple_email_filter_with_uuid(self):
+        query = 'emails.value eq "001750ca-8202-47cd-b553-c63f4f245940"'
+        expected = [
+            ('ATTRNAME', 'emails'),
+            ('DOT', '.'),
+            ('ATTRNAME', 'value'),
+            ('EQ', 'eq'),
+            ('COMP_VALUE', '001750ca-8202-47cd-b553-c63f4f245940')
+        ]
+        self.assertTokens(query, expected)
+
+
 class CommandLine(TestCase):
     def setUp(self):
         self.original_stdout = sys.stdout
