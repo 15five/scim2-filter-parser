@@ -38,7 +38,7 @@ class Query:
         where_sql = self.where_sql.format(*placeholders)
 
         lines = [
-            f'SELECT {self.table_name}.*',
+            f'SELECT DISTINCT {self.table_name}.*',
             f'FROM {self.table_name}',
         ]
 

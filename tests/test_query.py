@@ -258,6 +258,167 @@ class RFCExamples(unittest.TestCase):
         self.assertRows(query, expected_rows)
 
 
+class AzureQueries(unittest.TestCase):
+    maxDiff = None
+
+    CREATE_TABLE_USERS = '''
+    CREATE TABLE users
+    (
+        id INTEGER PRIMARY KEY,
+        external_id TEXT
+    )
+    '''
+
+    INSERT_USERS = '''
+    INSERT INTO users
+        (id, external_id)
+    VALUES
+        (1, '4d32ab19-ae09-4236-82fa-15768bc48a08'),
+        (2, '5ef40940-ae09-4236-82fa-ab184843992c'),
+        (3, '83901010-ae09-4236-82fa-576381818313')
+    '''
+
+    CREATE_TABLE_EMAILS = '''
+    CREATE TABLE emails
+    (
+        id INTEGER PRIMARY KEY,
+        user_id INTEGER,
+        text TEXT,
+        type TYPE,
+        FOREIGN KEY(user_id) REFERENCES users(id)
+    )
+    '''
+
+    INSERT_EMAILS = '''
+    INSERT INTO emails
+        (id, user_id, text, type)
+    VALUES
+        (1, 1, '001750ca-8202-47cd-b553-c63f4f245940', 'Primary'),
+        (2, 1, 'carly@example.net', 'home'),
+        (3, 2, 'james@example.net', 'home'),
+        (4, 3, '9438932a-8202-47cd-b553-85afc2939193', 'Primary')
+    '''
+
+    ATTR_MAP = {
+        # attr_name, sub_attr, uri: table name
+        ('externalid', None, None): 'users.external_id',
+        ('emails', None, None): 'emails.text',
+        ('emails', 'value', None): 'emails.text',
+        ('emails', 'type', None): 'emails.type',
+    }
+
+    JOINS = (
+        'LEFT JOIN emails ON emails.user_id = users.id',
+    )
+
+    def setUp(self):
+        self.conn = sqlite3.connect(':memory:')
+        self.cursor = self.conn.cursor()
+        self.cursor.execute(self.CREATE_TABLE_USERS)
+        self.cursor.execute(self.INSERT_USERS)
+        self.cursor.execute(self.CREATE_TABLE_EMAILS)
+        self.cursor.execute(self.INSERT_EMAILS)
+        self.conn.commit()
+
+    def assertRows(self, query, expected_rows):
+        q = scim2_query.SQLiteQuery(query, 'users', self.ATTR_MAP, self.JOINS)
+        self.cursor.execute(q.sql, q.params)
+        results = self.cursor.fetchall()
+        self.assertEqual(expected_rows, results)
+ 
+    def test_email_type_eq_primary_value_eq_uuid(self):
+        query = 'emails[type eq "Primary"].value eq "9438932a-8202-47cd-b553-85afc2939193"'
+        expected_rows = [
+            (3, '83901010-ae09-4236-82fa-576381818313')
+        ]
+        self.assertRows(query, expected_rows)
+
+    def test_external_id_from_azure(self):
+        query = 'externalId eq "5ef40940-ae09-4236-82fa-ab184843992c"'
+        expected_rows = [
+            (2, '5ef40940-ae09-4236-82fa-ab184843992c')
+        ]
+        self.assertRows(query, expected_rows)
+
+    def test_parse_simple_email_filter_with_uuid(self):
+        query = 'emails.value eq "001750ca-8202-47cd-b553-c63f4f245940"'
+        expected_rows = [
+            (1, '4d32ab19-ae09-4236-82fa-15768bc48a08')
+        ]
+        self.assertRows(query, expected_rows)
+
+
+class GeneralQueries(unittest.TestCase):
+    maxDiff = None
+
+    CREATE_TABLE_USERS = '''
+    CREATE TABLE users
+    (
+        id INTEGER PRIMARY KEY,
+        name TEXT
+    )
+    '''
+
+    INSERT_USERS = '''
+    INSERT INTO users
+        (id, name)
+    VALUES
+        (1, 'Paul'),
+        (2, 'Chris'),
+        (3, 'Eileen')
+    '''
+
+    CREATE_TABLE_EMAILS = '''
+    CREATE TABLE emails
+    (
+        id INTEGER PRIMARY KEY,
+        user_id INTEGER,
+        text TEXT,
+        type TYPE,
+        FOREIGN KEY(user_id) REFERENCES users(id)
+    )
+    '''
+
+    INSERT_EMAILS = '''
+    INSERT INTO emails
+        (id, user_id, text, type)
+    VALUES
+        (1, 1, 'paul@example.net', 'home'),
+        (2, 1, 'paul@example.net', 'work')
+    '''
+
+    ATTR_MAP = {
+        # attr_name, sub_attr, uri: table name
+        ('emails', 'value', None): 'emails.text',
+    }
+
+    JOINS = (
+        'LEFT JOIN emails ON emails.user_id = users.id',
+    )
+
+    def setUp(self):
+        self.conn = sqlite3.connect(':memory:')
+        self.cursor = self.conn.cursor()
+        self.cursor.execute(self.CREATE_TABLE_USERS)
+        self.cursor.execute(self.INSERT_USERS)
+        self.cursor.execute(self.CREATE_TABLE_EMAILS)
+        self.cursor.execute(self.INSERT_EMAILS)
+        self.conn.commit()
+
+    def assertRows(self, query, expected_rows):
+        q = scim2_query.SQLiteQuery(query, 'users', self.ATTR_MAP, self.JOINS)
+        self.cursor.execute(q.sql, q.params)
+        results = self.cursor.fetchall()
+        self.assertEqual(expected_rows, results)
+
+    def test_ensure_distinct_rows_fetched(self):
+        query = 'emails.value eq "paul@example.net"'
+        expected_rows = [
+            (1, 'Paul')
+        ]
+        self.assertRows(query, expected_rows)
+
+
 class CommandLine(unittest.TestCase):
     def setUp(self):
         self.original_stdout = sys.stdout
@@ -274,7 +435,7 @@ class CommandLine(unittest.TestCase):
             '>>> DO NOT USE THIS OUTPUT DIRECTLY',
             '>>> SQL INJECTION ATTACK RISK',
             '>>> SQL PREVIEW:',
-            '    SELECT users.*',
+            '    SELECT DISTINCT users.*',
             '    FROM users',
             '    LEFT JOIN emails ON emails.user_id = users.id',
             '    LEFT JOIN schemas ON schemas.user_id = users.id',
