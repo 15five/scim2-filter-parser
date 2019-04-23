@@ -108,7 +108,7 @@ the rest of the SQL query.
     >>> DO NOT USE THIS OUTPUT DIRECTLY
     >>> SQL INJECTION ATTACK RISK
     >>> SQL PREVIEW:
-        SELECT users.*
+        SELECT DISTINCT users.*
         FROM users
         LEFT JOIN emails ON emails.user_id = users.id
         LEFT JOIN schemas ON schemas.user_id = users.id
