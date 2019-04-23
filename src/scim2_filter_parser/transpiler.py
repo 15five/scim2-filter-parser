@@ -31,7 +31,7 @@ class SCIMToSQLTranspiler(SCIMTranspiler):
 
     def visit_Filter(self, node):
         if node.namespace:
-            # rebuild node with namespace from value path
+            # push the namespace from value path down the tree
             if isinstance(node.expr, scim2ast.Filter):
                 node.expr = scim2ast.Filter(node.expr.expr, node.expr.negated, node.namespace)
             elif isinstance(node.expr, scim2ast.LogExpr):
@@ -61,12 +61,43 @@ class SCIMToSQLTranspiler(SCIMTranspiler):
 
         return f'({expr1}) {op} ({expr2})'
 
-    def visit_AttrExpr(self, node):
-        attr = self.visit(node.attr_path)
-        op_sql = self.lookup_op(node.value)
+    def visit_PartialAttrExpr(self, node):
+        """
+        Dissect rather complex queries like the following:
+            emails[type eq "Primary"].value eq "001750ca-8202-47cd-b553-c63f4f245940"
 
-        if not node.comp_value:
-            return f'{attr} {op_sql}'
+        First we restructure to something like this:
+            emails.value[type eq "Primary"] eq "001750ca-8202-47cd-b553-c63f4f245940"
+
+        Then we get SQL like this 'emails.type = {0}' and 'emails.value'.
+
+        We need to take these two snippets and AND them together.
+        """
+        # visit full filter first and restructure AST
+        # ie. visit -> 'emails.type = {0}'
+        full = self.visit(node)
+
+        # get second part of query
+        # ie. visit -> 'emails.value'
+        partial = self.visit(node.namespace)
+
+        return f'{full} AND {partial}'
+
+    def visit_AttrExpr(self, node):
+        if isinstance(node.attr_path.attr_name, scim2ast.Filter):
+            attr = self.visit_PartialAttrExpr(node.attr_path.attr_name)
+            value = self.visit_AttrExprValue(node.value, node.comp_value)
+            return f'({attr} {value})'
+        else:
+            attr = self.visit(node.attr_path)
+            value = self.visit_AttrExprValue(node.value, node.comp_value)
+            return f'{attr} {value}'
+
+    def visit_AttrExprValue(self, node_value, node_comp_value):
+        op_sql = self.lookup_op(node_value)
+
+        if not node_comp_value:
+            return op_sql
 
         # There is a comp_value, so visit node and build SQL.
         item_id = len(self.params)
@@ -76,14 +107,14 @@ class SCIMToSQLTranspiler(SCIMTranspiler):
 
         if 'LIKE' == op_sql:
             # Add appropriate % signs to values in LIKE clause
-            prefix, suffix = self.lookup_like_fixes(node.value)
-            value = prefix + self.visit(node.comp_value) + suffix
+            prefix, suffix = self.lookup_like_fixes(node_value)
+            value = prefix + self.visit(node_comp_value) + suffix
         else:
-            value = self.visit(node.comp_value)
+            value = self.visit(node_comp_value)
 
         self.params[item_id] = value
 
-        return f'{attr} {op_sql} {item_id_placeholder}'
+        return f'{op_sql} {item_id_placeholder}'
 
     def lookup_attr(self, attr_name, sub_attr, uri):
         # Convert attr_name to another value based on map.

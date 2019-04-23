@@ -126,6 +126,39 @@ class RFCExamples(TestCase):
         self.assertSQL(query, sql, params)
 
 
+class AzureQueries(TestCase):
+    def setUp(self):
+        self.lexer = SCIMLexer()
+        self.parser = SCIMParser()
+        self.transpiler = transpiler.SCIMToSQLTranspiler({})
+
+    def assertSQL(self, query, expected_sql, expected_params):
+        tokens = self.lexer.tokenize(query)
+        ast = self.parser.parse(tokens)
+        sql, params = self.transpiler.transpile(ast)
+
+        self.assertEqual(expected_sql, sql, query)
+        self.assertEqual(expected_params, params, query)
+
+    def test_email_type_eq_primary_value_eq_uuid(self):
+        query = 'emails[type eq "Primary"].value eq "001750ca-8202-47cd-b553-c63f4f245940"'
+        sql = "(emails.type = {0} AND emails.value = {1})"
+        params = {0: 'Primary', 1: '001750ca-8202-47cd-b553-c63f4f245940'}
+        self.assertSQL(query, sql, params)
+
+    def test_external_id_from_azure(self):
+        query = 'externalId eq "4d32ab19-ae09-4236-82fa-15768bc48a08"'
+        sql = "externalid = {0}"
+        params = {0: '4d32ab19-ae09-4236-82fa-15768bc48a08'}
+        self.assertSQL(query, sql, params)
+
+    def test_parse_simple_email_filter_with_uuid(self):
+        query = 'emails.value eq "001750ca-8202-47cd-b553-c63f4f245940"'
+        sql = "emails.value = {0}"
+        params = {0: '001750ca-8202-47cd-b553-c63f4f245940'}
+        self.assertSQL(query, sql, params)
+
+
 class CommandLine(TestCase):
     def setUp(self):
         self.original_stdout = sys.stdout

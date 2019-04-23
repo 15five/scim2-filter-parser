@@ -90,6 +90,10 @@ from . import ast
 from . import lexer
 
 
+class SCIMParesrError(Exception):
+    pass
+
+
 class SCIMParser(Parser):
     #debugfile = 'debug.log'
 
@@ -183,14 +187,29 @@ class SCIMParser(Parser):
     @_('ATTRNAME',
        'ATTRNAME sub_attr',
        'SCHEMA_URI ATTRNAME',
-       'SCHEMA_URI ATTRNAME sub_attr')
+       'SCHEMA_URI ATTRNAME sub_attr',
+       'value_path sub_attr')
     def attr_path(self, p):
         if len(p) == 1:
             return ast.AttrPath(p[0], None, None)
+
+        elif len(p) == 2 and isinstance(p[0], ast.Filter) and isinstance(p[1], ast.SubAttr):
+            sub_attr = p[0].namespace.sub_attr
+            if sub_attr is not None:
+                raise SCIMParesrError(f'Parsing error at: {p}')
+
+            # For easier transpiling, convert complex queries like so:
+            # emails[type eq "Primary"].value -> emails.value[type eq "Primary"]
+            p[0].namespace.sub_attr = p[1]
+
+            return ast.AttrPath(p[0], None, None)
+
         elif len(p) == 2 and isinstance(p[1], ast.SubAttr):
             return ast.AttrPath(p[0], p[1], None)
+
         elif len(p) == 2:
             return ast.AttrPath(p[1], None, p[0])
+
         else:
             return ast.AttrPath(p[1], p[2], p[0])
 
@@ -199,6 +218,9 @@ class SCIMParser(Parser):
     @_('DOT ATTRNAME')
     def sub_attr(self, p):
         return ast.SubAttr(p[1])
+
+    def error(self, p):
+        raise SCIMParesrError(f'Parsing error at: {p}')
 
 
 def main(argv=None):
