@@ -93,12 +93,13 @@ class SCIMToSQLTranspiler(SCIMTranspiler):
     def visit_AttrExpr(self, node):
         if isinstance(node.attr_path.attr_name, scim2ast.Filter):
             full, partial = self.visit_PartialAttrExpr(node.attr_path.attr_name)
-            value = self.visit_AttrExprValue(node.value, node.comp_value)
             if full and partial:
+                value = self.visit_AttrExprValue(node.value, node.comp_value)
                 return f'({full} AND {partial} {value})'
             elif full:
                 return full
             elif partial:
+                value = self.visit_AttrExprValue(node.value, node.comp_value)
                 return f'{partial} {value}'
             else:
                 return None
