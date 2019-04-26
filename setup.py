@@ -29,7 +29,7 @@ setup(
     install_requires=[
         'sly==0.3',
     ],
-    entry_points = {
+    entry_points={
         'console_scripts': [
             'sfp-lexer=scim2_filter_parser.lexer:main',
             'sfp-parser=scim2_filter_parser.parser:main',

@@ -95,7 +95,7 @@ class SCIMParesrError(Exception):
 
 
 class SCIMParser(Parser):
-    #debugfile = 'debug.log'
+    # debugfile = 'debug.log'
 
     # Same token set as defined in the lexer
     tokens = lexer.SCIMLexer.tokens
@@ -108,26 +108,26 @@ class SCIMParser(Parser):
     #       which takes precedence over "or"
     #   3.  Attribute operators
     precedence = (
-        ('nonassoc', OR),
-        ('nonassoc', AND),
-        ('nonassoc', NOT),
+        ('nonassoc', OR),  # noqa F821
+        ('nonassoc', AND), # noqa F821
+        ('nonassoc', NOT), # noqa F821
     )
 
     # FILTER    = attrExp / logExp / valuePath / *1"not" "(" FILTER ")"
     #                                           ; 0 or 1 "not"s
-    @_('attr_exp')
+    @_('attr_exp') # noqa F821
     def filter(self, p):
         return ast.Filter(p.attr_exp, False, None)
 
-    @_('log_exp')
+    @_('log_exp') # noqa F821
     def filter(self, p):
         return ast.Filter(p.log_exp, False, None)
 
-    @_('value_path')
+    @_('value_path') # noqa F821
     def filter(self, p):
         return ast.Filter(p.value_path, False, None)
 
-    @_('LPAREN filter RPAREN',
+    @_('LPAREN filter RPAREN', # noqa F821
        'NOT LPAREN filter RPAREN')
     def filter(self, p):
         negate = p[0].lower() == 'not'
@@ -145,13 +145,13 @@ class SCIMParser(Parser):
     # the brackets. Thus we need to distribute the namespace to the leaf nodes
     # of the filter node. We will attach attr_path to the filter and use
     # it in the transpiler.
-    @_('attr_path LBRACKET filter RBRACKET')
+    @_('attr_path LBRACKET filter RBRACKET') # noqa F821
     def value_path(self, p):
         return ast.Filter(p.filter, False, p.attr_path)
 
     # attrExp   = (attrPath SP "pr") /
     #             (attrPath SP compareOp SP compValue)
-    @_('attr_path PR',
+    @_('attr_path PR', # noqa F821
        'attr_path EQ comp_value',
        'attr_path NE comp_value',
        'attr_path CO comp_value',
@@ -166,14 +166,14 @@ class SCIMParser(Parser):
         return ast.AttrExpr(p[1], p.attr_path, comp_value)
 
     # logExp    = FILTER SP ("and" / "or") SP FILTER
-    @_('filter OR filter',
+    @_('filter OR filter', # noqa F821
        'filter AND filter')
     def log_exp(self, p):
         return ast.LogExpr(p[1], p.filter0, p.filter1)
 
     # compValue = false / null / true / number / string
     #            ; rules from JSON (RFC 7159)
-    @_('FALSE',
+    @_('FALSE', # noqa F821
        'NULL',
        'TRUE',
        'NUMBER',
@@ -184,7 +184,7 @@ class SCIMParser(Parser):
     # attrPath  = [URI ":"] ATTRNAME *1subAttr
     #             ; SCIM attribute name
     #             ; URI is SCIM "schema" URI
-    @_('ATTRNAME',
+    @_('ATTRNAME', # noqa F821
        'ATTRNAME sub_attr',
        'SCHEMA_URI ATTRNAME',
        'SCHEMA_URI ATTRNAME sub_attr',
@@ -215,7 +215,7 @@ class SCIMParser(Parser):
 
     # subAttr   = "." ATTRNAME
     #             ; a sub-attribute of a complex attribute
-    @_('DOT ATTRNAME')
+    @_('DOT ATTRNAME') # noqa F821
     def sub_attr(self, p):
         return ast.SubAttr(p[1])
 

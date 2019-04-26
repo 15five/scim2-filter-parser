@@ -78,9 +78,6 @@ def main(argv=None):
     import argparse
     import sys
 
-    from scim2_filter_parser.lexer import SCIMLexer
-    from scim2_filter_parser.parser import SCIMParser
-
     argv = argv or sys.argv[1:]
 
     parser = argparse.ArgumentParser('SCIM 2.0 Filter Parser Transpiler')

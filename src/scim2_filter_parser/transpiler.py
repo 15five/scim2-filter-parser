@@ -4,8 +4,6 @@ clause based on a SCIM filter.
 """
 import ast
 
-from sly import Parser
-
 from . import ast as scim2ast
 
 
@@ -47,7 +45,6 @@ class SCIMToSQLTranspiler(SCIMTranspiler):
                 raise NotImplementedError(f'Node {node} can not pass on namespace')
 
         expr = self.visit(node.expr)
-        negated = node.negated
 
         if expr and node.negated:
             expr = f'NOT ({expr})'

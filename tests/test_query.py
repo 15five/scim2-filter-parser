@@ -327,7 +327,7 @@ class AzureQueries(unittest.TestCase):
         self.cursor.execute(q.sql, q.params)
         results = self.cursor.fetchall()
         self.assertEqual(expected_rows, results)
- 
+
     def test_email_type_eq_primary_value_eq_uuid(self):
         query = 'emails[type eq "Primary"].value eq "9438932a-8202-47cd-b553-85afc2939193"'
         expected_rows = [

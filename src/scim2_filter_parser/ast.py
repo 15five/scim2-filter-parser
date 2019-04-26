@@ -10,8 +10,9 @@ This file has a small bit of metaprogramming to simplify specification
 and to perform some validation steps.
 '''
 
+
 class AST(object):
-    _nodes = { }
+    _nodes = {}
 
     @classmethod
     def __init_subclass__(cls):
@@ -75,36 +76,37 @@ class AST(object):
 # Abstract AST nodes.  These are not instantiated directly, but other
 # classes inherit from them.
 
+
 class Filter(AST):
-    expr      : AST
-    negated   : bool
-    namespace : AST
+    expr      : AST  # noqa: E203
+    negated   : bool  # noqa: E203
+    namespace : AST  # noqa: E203
 
 
 class LogExpr(AST):
-    op    : str
-    expr1 : Filter
-    expr2 : Filter
+    op    : str  # noqa: E203
+    expr1 : Filter  # noqa: E203
+    expr2 : Filter  # noqa: E203
 
 
 class SubAttr(AST):
-    value : str
+    value : str  # noqa: E203
 
 
 class AttrPath(AST):
-    attr_name : str
-    sub_attr  : (SubAttr, type(None))
-    uri       : (str, type(None))
+    attr_name : str  # noqa: E203
+    sub_attr  : (SubAttr, type(None))  # noqa: E203
+    uri       : (str, type(None))  # noqa: E203
 
 
 class CompValue(AST):
-    value : str
+    value : str  # noqa: E203
 
 
 class AttrExpr(AST):
-    value : str
-    attr_path  : AttrPath
-    comp_value : CompValue
+    value : str  # noqa: E203
+    attr_path  : AttrPath  # noqa: E203
+    comp_value : CompValue  # noqa: E203
 
 
 # The following classes for visiting and rewriting the AST are taken
@@ -161,7 +163,7 @@ class NodeVisitor(metaclass=NodeVisitMeta):
             visitor = getattr(self, method, self.generic_visit)
             visitor(node)
 
-    def generic_visit(self,node):
+    def generic_visit(self, node):
         '''
         Method executed if no applicable visit_ method can be found.
         This examines the node to see if it has _fields, is a list,
