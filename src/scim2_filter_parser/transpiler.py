@@ -49,7 +49,7 @@ class SCIMToSQLTranspiler(SCIMTranspiler):
         expr = self.visit(node.expr)
         negated = node.negated
 
-        if node.negated:
+        if expr and node.negated:
             expr = f'NOT ({expr})'
 
         return expr
@@ -59,7 +59,14 @@ class SCIMToSQLTranspiler(SCIMTranspiler):
         expr2 = self.visit(node.expr2)
         op = node.op.upper()
 
-        return f'({expr1}) {op} ({expr2})'
+        if expr1 and expr2:
+            return f'({expr1}) {op} ({expr2})'
+        elif expr1:
+            return expr1
+        elif expr2:
+            return expr2
+        else:
+            return None
 
     def visit_PartialAttrExpr(self, node):
         """
@@ -81,15 +88,24 @@ class SCIMToSQLTranspiler(SCIMTranspiler):
         # ie. visit -> 'emails.value'
         partial = self.visit(node.namespace)
 
-        return f'{full} AND {partial}'
+        return full, partial
 
     def visit_AttrExpr(self, node):
         if isinstance(node.attr_path.attr_name, scim2ast.Filter):
-            attr = self.visit_PartialAttrExpr(node.attr_path.attr_name)
+            full, partial = self.visit_PartialAttrExpr(node.attr_path.attr_name)
             value = self.visit_AttrExprValue(node.value, node.comp_value)
-            return f'({attr} {value})'
+            if full and partial:
+                return f'({full} AND {partial} {value})'
+            elif full:
+                return full
+            elif partial:
+                return f'{partial} {value}'
+            else:
+                return None
         else:
             attr = self.visit(node.attr_path)
+            if attr is None:
+                return None
             value = self.visit_AttrExprValue(node.value, node.comp_value)
             return f'{attr} {value}'
 
@@ -107,7 +123,7 @@ class SCIMToSQLTranspiler(SCIMTranspiler):
 
         if 'LIKE' == op_sql:
             # Add appropriate % signs to values in LIKE clause
-            prefix, suffix = self.lookup_like_fixes(node_value)
+            prefix, suffix = self.lookup_like_matching(node_value)
             value = prefix + self.visit(node_comp_value) + suffix
         else:
             value = self.visit(node_comp_value)
@@ -115,18 +131,6 @@ class SCIMToSQLTranspiler(SCIMTranspiler):
         self.params[item_id] = value
 
         return f'{op_sql} {item_id_placeholder}'
-
-    def lookup_attr(self, attr_name, sub_attr, uri):
-        # Convert attr_name to another value based on map.
-        # Otherwise, return value.
-        value = self.attr_map.get((attr_name, sub_attr, uri))
-        if value:
-            return value
-
-        if sub_attr:
-            return attr_name + '.' + sub_attr
-
-        return attr_name
 
     def visit_AttrPath(self, node):
         attr_name_value = node.attr_name.lower()
@@ -139,7 +143,9 @@ class SCIMToSQLTranspiler(SCIMTranspiler):
         if node.uri:
             uri_value = node.uri.lower()
 
-        return self.lookup_attr(attr_name_value, sub_attr_value, uri_value)
+        # Convert attr_name to another value based on map.
+        # Otherwise, return None.
+        return self.attr_map.get((attr_name_value, sub_attr_value, uri_value))
 
     def visit_CompValue(self, node):
         if node.value in ('true', 'false', 'null'):
@@ -170,7 +176,7 @@ class SCIMToSQLTranspiler(SCIMTranspiler):
 
         return sql or node_value
 
-    def lookup_like_fixes(self, node_value):
+    def lookup_like_matching(self, node_value):
         op_code = node_value.lower()
 
         sql = {

@@ -32,11 +32,6 @@ class Query:
 
     @property
     def sql(self) -> str:
-        # Replace {#} with placeholder string. Different database
-        # connectors can override this with their own placeholder character.
-        placeholders = [self.placeholder for i in range(len(self.params))]
-        where_sql = self.where_sql.format(*placeholders)
-
         lines = [
             f'SELECT DISTINCT {self.table_name}.*',
             f'FROM {self.table_name}',
@@ -45,7 +40,14 @@ class Query:
         if self.joins:
             lines.extend(self.joins)
 
-        lines.append(f'WHERE {where_sql};')
+        # Replace {#} with placeholder string. Different database
+        # connectors can override this with their own placeholder character.
+        placeholders = [self.placeholder for i in range(len(self.params))]
+        if self.where_sql:
+            where_sql = self.where_sql.format(*placeholders)
+            lines.append(f'WHERE {where_sql}')
+
+        lines[-1] += ';'  # Complete all SQL with semicolon
 
         return '\n'.join('    ' + line for line in lines)
 

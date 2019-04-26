@@ -93,6 +93,7 @@ class RFCExamples(unittest.TestCase):
 
     ATTR_MAP = {
         # attr_name, sub_attr, uri: table name
+        ('title', None, None): 'users.title',
         ('username', None, None): 'users.username',
         ('usertype', None, None): 'users.user_type',
         ('name', 'familyname', None): 'users.last_name',
@@ -103,6 +104,7 @@ class RFCExamples(unittest.TestCase):
         ('ims', 'value', None): 'ims.text',
         ('ims', 'type', None): 'ims.type',
         ('schemas', None, None): 'schemas.text',
+        ('username', None, 'urn:ietf:params:scim:schemas:core:2.0:user'): 'username',
     }
 
     JOINS = (
