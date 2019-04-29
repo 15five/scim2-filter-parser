@@ -441,7 +441,7 @@ class CommandLine(unittest.TestCase):
             '    FROM users',
             '    LEFT JOIN emails ON emails.user_id = users.id',
             '    LEFT JOIN schemas ON schemas.user_id = users.id',
-            '    WHERE users.username = bjensen;'
+            '    WHERE username = bjensen;'
         ]
         self.assertEqual(result, expected)
 

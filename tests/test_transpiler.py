@@ -370,7 +370,7 @@ class CommandLine(TestCase):
         transpiler.main(['userName eq "bjensen"'])
         result = self.test_stdout.getvalue().strip().split('\n')
         expected = [
-            'SQL: users.username = {0}',
+            'SQL: username = {0}',
             "PARAMS: {0: 'bjensen'}"
         ]
         self.assertEqual(result, expected)
