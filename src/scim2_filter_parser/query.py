@@ -85,9 +85,18 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     attr_map = {
-        ('username', None, None): 'users.username',
-        ('name', 'familyname', None): 'users.family_name',
-        ('meta', 'lastmodified', None): 'update_ts',
+        ('name', 'familyname', None): 'name.familyname',
+        ('emails', None, None): 'emails',
+        ('emails', 'type', None): 'emails.type',
+        ('emails', 'value', None): 'emails.value',
+        ('username', None, None): 'username',
+        ('title', None, None): 'title',
+        ('usertype', None, None): 'usertype',
+        ('schemas', None, None): 'schemas',
+        ('username', None, 'urn:ietf:params:scim:schemas:core:2.0:user'): 'username',
+        ('meta', 'lastmodified', None): 'meta.lastmodified',
+        ('ims', 'type', None): 'ims.type',
+        ('ims', 'value', None): 'ims.value',
     }
 
     joins = (
