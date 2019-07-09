@@ -132,9 +132,9 @@ information is stored in a different table ``emails``, then the attribute map
 and the joins might be defined as so::
 
     attr_map = {
-        ('username', None, None): 'users.username',
-        ('name', 'familyname', None): 'users.family_name',
-        ('meta', 'lastmodified', None): 'users.update_ts',
+        ('userName', None, None): 'users.username',
+        ('name', 'familyName', None): 'users.family_name',
+        ('meta', 'lastModified', None): 'users.update_ts',
         ('emails', None, None): 'emails.address',
         ('emails', 'value', None): 'emails.address',
     }
