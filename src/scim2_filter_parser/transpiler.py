@@ -131,15 +131,15 @@ class SCIMToSQLTranspiler(SCIMTranspiler):
         return f'{op_sql} {item_id_placeholder}'
 
     def visit_AttrPath(self, node):
-        attr_name_value = node.attr_name.lower()
+        attr_name_value = node.attr_name
 
         sub_attr_value = None
         if node.sub_attr:
-            sub_attr_value = node.sub_attr.value.lower()
+            sub_attr_value = node.sub_attr.value
 
         uri_value = None
         if node.uri:
-            uri_value = node.uri.lower()
+            uri_value = node.uri
 
         # Convert attr_name to another value based on map.
         # Otherwise, return None.
@@ -212,12 +212,12 @@ def main(argv=None):
         ('emails', None, None): 'emails',
         ('emails', 'type', None): 'emails.type',
         ('emails', 'value', None): 'emails.value',
-        ('username', None, None): 'username',
+        ('userName', None, None): 'username',
         ('title', None, None): 'title',
-        ('usertype', None, None): 'usertype',
+        ('userType', None, None): 'usertype',
         ('schemas', None, None): 'schemas',
-        ('username', None, 'urn:ietf:params:scim:schemas:core:2.0:user'): 'username',
-        ('meta', 'lastmodified', None): 'meta.lastmodified',
+        ('userName', None, 'urn:ietf:params:scim:schemas:core:2.0:User'): 'username',
+        ('meta', 'lastModified', None): 'meta.lastmodified',
         ('ims', 'type', None): 'ims.type',
         ('ims', 'value', None): 'ims.value',
     }

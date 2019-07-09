@@ -9,16 +9,16 @@ from scim2_filter_parser.parser import SCIMParser
 
 class RFCExamples(TestCase):
     attr_map = {
-        ('name', 'familyname', None): 'name.familyname',
+        ('name', 'familyName', None): 'name.familyname',
         ('emails', None, None): 'emails',
         ('emails', 'type', None): 'emails.type',
         ('emails', 'value', None): 'emails.value',
-        ('username', None, None): 'username',
+        ('userName', None, None): 'username',
         ('title', None, None): 'title',
-        ('usertype', None, None): 'usertype',
+        ('userType', None, None): 'usertype',
         ('schemas', None, None): 'schemas',
-        ('username', None, 'urn:ietf:params:scim:schemas:core:2.0:user'): 'username',
-        ('meta', 'lastmodified', None): 'meta.lastmodified',
+        ('userName', None, 'urn:ietf:params:scim:schemas:core:2.0:User'): 'username',
+        ('meta', 'lastModified', None): 'meta.lastmodified',
         ('ims', 'type', None): 'ims.type',
         ('ims', 'value', None): 'ims.value',
     }
@@ -175,7 +175,7 @@ class UndefinedAttributes(TestCase):
         sql = "usertype = {0}"
         params = {0: 'Employee'}
         attr_map = {
-            ('usertype', None, None): 'usertype',
+            ('userType', None, None): 'usertype',
         }
         self.assertSQL(query, attr_map, sql, params)
 
@@ -191,7 +191,7 @@ class UndefinedAttributes(TestCase):
         sql = "(usertype = {0}) AND ((emails LIKE {1}) OR (emails.value LIKE {2}))"
         params = {0: 'Employee', 1: '%example.com%', 2: '%example.org%'}
         attr_map = {
-            ('usertype', None, None): 'usertype',
+            ('userType', None, None): 'usertype',
             ('emails', None, None): 'emails',
             ('emails', 'value', None): 'emails.value',
         }
@@ -202,7 +202,7 @@ class UndefinedAttributes(TestCase):
         sql = "(usertype != {0}) AND (NOT ((emails LIKE {1}) OR (emails.value LIKE {2})))"
         params = {0: 'Employee', 1: '%example.com%', 2: '%example.org%'}
         attr_map = {
-            ('usertype', None, None): 'usertype',
+            ('userType', None, None): 'usertype',
             ('emails', None, None): 'emails',
             ('emails', 'value', None): 'emails.value',
         }
@@ -213,7 +213,7 @@ class UndefinedAttributes(TestCase):
         sql = "usertype = {0}"
         params = {0: 'Employee'}
         attr_map = {
-            ('usertype', None, None): 'usertype',
+            ('userType', None, None): 'usertype',
         }
         self.assertSQL(query, attr_map, sql, params)
 
@@ -231,7 +231,7 @@ class UndefinedAttributes(TestCase):
         sql = "usertype = {0}"
         params = {0: 'Employee'}
         attr_map = {
-            ('usertype', None, None): 'usertype',
+            ('userType', None, None): 'usertype',
         }
         self.assertSQL(query, attr_map, sql, params)
 
@@ -323,7 +323,7 @@ class AzureQueries(TestCase):
     attr_map = {
         ('emails', 'type', None): 'emails.type',
         ('emails', 'value', None): 'emails.value',
-        ('externalid', None, None): 'externalid',
+        ('externalId', None, None): 'externalid',
     }
 
     def setUp(self):

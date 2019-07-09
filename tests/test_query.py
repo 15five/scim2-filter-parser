@@ -94,17 +94,17 @@ class RFCExamples(unittest.TestCase):
     ATTR_MAP = {
         # attr_name, sub_attr, uri: table name
         ('title', None, None): 'users.title',
-        ('username', None, None): 'users.username',
-        ('usertype', None, None): 'users.user_type',
-        ('name', 'familyname', None): 'users.last_name',
-        ('meta', 'lastmodified', None): 'users.update_ts',
+        ('userName', None, None): 'users.username',
+        ('userType', None, None): 'users.user_type',
+        ('name', 'familyName', None): 'users.last_name',
+        ('meta', 'lastModified', None): 'users.update_ts',
         ('emails', None, None): 'emails.text',
         ('emails', 'value', None): 'emails.text',
         ('emails', 'type', None): 'emails.type',
         ('ims', 'value', None): 'ims.text',
         ('ims', 'type', None): 'ims.type',
         ('schemas', None, None): 'schemas.text',
-        ('username', None, 'urn:ietf:params:scim:schemas:core:2.0:user'): 'username',
+        ('userName', None, 'urn:ietf:params:scim:schemas:core:2.0:User'): 'username',
     }
 
     JOINS = (
@@ -303,7 +303,7 @@ class AzureQueries(unittest.TestCase):
 
     ATTR_MAP = {
         # attr_name, sub_attr, uri: table name
-        ('externalid', None, None): 'users.external_id',
+        ('externalId', None, None): 'users.external_id',
         ('emails', None, None): 'emails.text',
         ('emails', 'value', None): 'emails.text',
         ('emails', 'type', None): 'emails.type',
