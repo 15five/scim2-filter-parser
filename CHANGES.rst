@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+0.1.1
+-----
+- Retain capitalization in queries
+
 0.1.0
 -----
 
