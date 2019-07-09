@@ -2,9 +2,9 @@ from io import StringIO
 import sys
 from unittest import TestCase
 
-from scim2_filter_parser import transpiler
 from scim2_filter_parser.lexer import SCIMLexer
 from scim2_filter_parser.parser import SCIMParser
+import scim2_filter_parser.transpilers.sql as transpile_sql
 
 
 class RFCExamples(TestCase):
@@ -26,7 +26,7 @@ class RFCExamples(TestCase):
     def setUp(self):
         self.lexer = SCIMLexer()
         self.parser = SCIMParser()
-        self.transpiler = transpiler.SCIMToSQLTranspiler(self.attr_map)
+        self.transpiler = transpile_sql.Transpiler(self.attr_map)
 
     def assertSQL(self, query, expected_sql, expected_params):
         tokens = self.lexer.tokenize(query)
@@ -149,7 +149,7 @@ class UndefinedAttributes(TestCase):
     def assertSQL(self, query, attr_map, expected_sql, expected_params):
         tokens = self.lexer.tokenize(query)
         ast = self.parser.parse(tokens)
-        sql, params = transpiler.SCIMToSQLTranspiler(attr_map).transpile(ast)
+        sql, params = transpile_sql.Transpiler(attr_map).transpile(ast)
 
         self.assertEqual(expected_sql, sql, query)
         self.assertEqual(expected_params, params, query)
@@ -329,7 +329,7 @@ class AzureQueries(TestCase):
     def setUp(self):
         self.lexer = SCIMLexer()
         self.parser = SCIMParser()
-        self.transpiler = transpiler.SCIMToSQLTranspiler(self.attr_map)
+        self.transpiler = transpile_sql.Transpiler(self.attr_map)
 
     def assertSQL(self, query, expected_sql, expected_params):
         tokens = self.lexer.tokenize(query)
@@ -367,7 +367,7 @@ class CommandLine(TestCase):
         sys.stdout = self.original_stdout
 
     def test_command_line(self):
-        transpiler.main(['userName eq "bjensen"'])
+        transpile_sql.main(['userName eq "bjensen"'])
         result = self.test_stdout.getvalue().strip().split('\n')
         expected = [
             'SQL: username = {0}',

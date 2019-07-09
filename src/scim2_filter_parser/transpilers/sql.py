@@ -4,14 +4,10 @@ clause based on a SCIM filter.
 """
 import ast
 
-from . import ast as scim2ast
+from .. import ast as scim2ast
 
 
-class SCIMTranspiler(ast.NodeTransformer):
-    pass
-
-
-class SCIMToSQLTranspiler(SCIMTranspiler):
+class Transpiler(ast.NodeTransformer):
     """
     Transpile a SCIM AST into a SQL WHERE clause (not including the "WHERE" keyword)
     """
@@ -21,6 +17,7 @@ class SCIMToSQLTranspiler(SCIMTranspiler):
 
         self.params = {}
         self.attr_map = attr_map
+        self.attr_paths = []
 
     def transpile(self, ast) -> str:
         sql = self.visit(ast)
@@ -143,7 +140,9 @@ class SCIMToSQLTranspiler(SCIMTranspiler):
 
         # Convert attr_name to another value based on map.
         # Otherwise, return None.
-        return self.attr_map.get((attr_name_value, sub_attr_value, uri_value))
+        attr_path_tuple = (attr_name_value, sub_attr_value, uri_value)
+        self.attr_paths.append(attr_path_tuple)
+        return self.attr_map.get(attr_path_tuple)
 
     def visit_CompValue(self, node):
         if node.value in ('true', 'false', 'null'):
@@ -221,7 +220,7 @@ def main(argv=None):
         ('ims', 'type', None): 'ims.type',
         ('ims', 'value', None): 'ims.value',
     }
-    sql, params = SCIMToSQLTranspiler(attr_map).transpile(ast)
+    sql, params = Transpiler(attr_map).transpile(ast)
 
     print('SQL:', sql)
     print('PARAMS:', params)

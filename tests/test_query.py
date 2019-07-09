@@ -3,7 +3,7 @@ import sqlite3
 import sys
 import unittest
 
-from scim2_filter_parser import query as scim2_query
+import scim2_filter_parser.queries.sql as queries_sql
 
 
 class RFCExamples(unittest.TestCase):
@@ -127,7 +127,7 @@ class RFCExamples(unittest.TestCase):
         self.conn.commit()
 
     def assertRows(self, query, expected_rows):
-        q = scim2_query.SQLiteQuery(query, 'users', self.ATTR_MAP, self.JOINS)
+        q = queries_sql.SQLiteQuery(query, 'users', self.ATTR_MAP, self.JOINS)
         self.cursor.execute(q.sql, q.params)
         results = self.cursor.fetchall()
 
@@ -323,7 +323,7 @@ class AzureQueries(unittest.TestCase):
         self.conn.commit()
 
     def assertRows(self, query, expected_rows):
-        q = scim2_query.SQLiteQuery(query, 'users', self.ATTR_MAP, self.JOINS)
+        q = queries_sql.SQLiteQuery(query, 'users', self.ATTR_MAP, self.JOINS)
         self.cursor.execute(q.sql, q.params)
         results = self.cursor.fetchall()
         self.assertEqual(expected_rows, results)
@@ -408,7 +408,7 @@ class GeneralQueries(unittest.TestCase):
         self.conn.commit()
 
     def assertRows(self, query, expected_rows):
-        q = scim2_query.SQLiteQuery(query, 'users', self.ATTR_MAP, self.JOINS)
+        q = queries_sql.SQLiteQuery(query, 'users', self.ATTR_MAP, self.JOINS)
         self.cursor.execute(q.sql, q.params)
         results = self.cursor.fetchall()
         self.assertEqual(expected_rows, results)
@@ -430,7 +430,7 @@ class CommandLine(unittest.TestCase):
         sys.stdout = self.original_stdout
 
     def test_command_line(self):
-        scim2_query.main(['userName eq "bjensen"'])
+        queries_sql.main(['userName eq "bjensen"'])
         result = self.test_stdout.getvalue().strip().split('\n')
 
         expected = [

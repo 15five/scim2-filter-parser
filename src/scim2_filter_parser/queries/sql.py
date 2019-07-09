@@ -1,12 +1,12 @@
 """
 The logic in this module builds a full SQL query based on a SCIM filter.
 """
-from .lexer import SCIMLexer
-from .parser import SCIMParser
-from .transpiler import SCIMToSQLTranspiler
+from ..lexer import SCIMLexer
+from ..parser import SCIMParser
+from ..transpilers.sql import Transpiler
 
 
-class Query:
+class SQLQuery:
     placeholder = '%s'
 
     def __init__(self, filter_, table_name, attr_map, joins=()):
@@ -18,12 +18,17 @@ class Query:
         self.where_params: dict = None
         self.params: list = None
 
+        self.token_stream = None
+        self.ast = None
+        self.transpiler = None
+
         self.build_where_sql()
 
     def build_where_sql(self):
-        token_stream = SCIMLexer().tokenize(self.filter)
-        ast = SCIMParser().parse(token_stream)
-        sql, params = SCIMToSQLTranspiler(self.attr_map).transpile(ast)
+        self.token_stream = SCIMLexer().tokenize(self.filter)
+        self.ast = SCIMParser().parse(self.token_stream)
+        self.transpiler = Transpiler(self.attr_map)
+        sql, params = self.transpiler.transpile(self.ast)
 
         self.where_sql = sql
         self.where_params = params
@@ -67,7 +72,7 @@ class Query:
         ))
 
 
-class SQLiteQuery(Query):
+class SQLiteQuery(SQLQuery):
     placeholder = '?'
 
 
