@@ -251,6 +251,35 @@ class RFCExamples(TestCase):
         self.assertTokens(query, expected)
 
 
+class RegressionTestQueries(TestCase):
+    def setUp(self):
+        self.lexer = lexer.SCIMLexer()
+
+    def get_token_tuples(self, query):
+        return self.lexer.tokenize(query)
+
+    def assertTokens(self, query, expected):
+        token_tuples = [
+            (token.type, token.value) for token in self.get_token_tuples(query)
+        ]
+        self.assertEqual(expected, token_tuples)
+
+    def test_co_after_dot_not_considered_CO_token(self):
+        query = 'addresses[type eq "work"].country eq ""'
+        expected = [
+            ('ATTRNAME', 'addresses'),
+            ('LBRACKET', '['),
+            ('ATTRNAME', 'type'),
+            ('EQ', 'eq'),
+            ('COMP_VALUE', 'work'),
+            ('RBRACKET', ']'),
+            ('DOT', '.'),
+            ('ATTRNAME', 'country'),
+            ('EQ', 'eq'),
+            ('COMP_VALUE', '')
+        ]
+        self.assertTokens(query, expected)
+
 class AzureQueries(TestCase):
     def setUp(self):
         self.lexer = lexer.SCIMLexer()
