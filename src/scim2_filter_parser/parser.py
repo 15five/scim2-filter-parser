@@ -188,6 +188,12 @@ class SCIMParser(Parser):
        'ATTRNAME sub_attr',
        'SCHEMA_URI ATTRNAME',
        'SCHEMA_URI ATTRNAME sub_attr',
+       # Next clause is not in spec but allows us to handle things
+       # like 'members[value eq "6784"] eq ""' which are helpful for
+       # AttrPath parsing for PATCH calls.
+       'value_path',
+       # Not sure this last clause is in the ABNF spec
+       # but Azure/Microsoft uses it so let's be prepared.
        'value_path sub_attr')
     def attr_path(self, p):
         if len(p) == 1:

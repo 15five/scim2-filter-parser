@@ -271,6 +271,19 @@ class RegressionTestQueries(TestCase):
         ]
         self.assertTokens(query, expected)
 
+    def test_members(self):
+        query = 'members[value eq "6784"] eq ""'
+        expected = [
+            ('ATTRNAME', 'members'),
+            ('LBRACKET', '['),
+            ('ATTRNAME', 'value'),
+            ('EQ', 'eq'),
+            ('COMP_VALUE', '6784'),
+            ('RBRACKET', ']'),
+            ('EQ', 'eq'),
+            ('COMP_VALUE', '')
+        ]
+        self.assertTokens(query, expected)
 
 
 class AzureQueries(TestCase):
