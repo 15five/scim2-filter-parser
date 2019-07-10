@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+0.2.1
+-----
+- Fix long staging tokening error
+
 0.2.0
 -----
 - Add logic for AttrPath extractions
