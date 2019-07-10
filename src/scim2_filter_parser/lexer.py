@@ -160,8 +160,8 @@ class SCIMLexer(Lexer):
         NUMBER,
         COMP_VALUE,
         ATTRNAME,
-        DOT,
         SCHEMA_URI,
+        SUBATTR,
     }
 
     # Filters MUST be evaluated using the following order of operations, in
@@ -172,6 +172,11 @@ class SCIMLexer(Lexer):
     # 3.  Attribute operators
 
     ignore = ' \t'
+
+    @_(r'\.[a-zA-Z][a-zA-Z0-9_-]*')
+    def SUBATTR(self, t):
+        t.value = t.value.lstrip('.')
+        return t
 
     # Attribute Operators
     EQ = r'(E|e)(Q|q)'
@@ -211,9 +216,6 @@ class SCIMLexer(Lexer):
         return t
 
     ATTRNAME = r'[a-zA-Z][a-zA-Z0-9_-]*'
-
-    # Other characters
-    DOT = r'\.'
 
     @_(r'"([^"]*)"')
     def COMP_VALUE(self, t):

@@ -215,9 +215,9 @@ class SCIMParser(Parser):
 
     # subAttr   = "." ATTRNAME
     #             ; a sub-attribute of a complex attribute
-    @_('DOT ATTRNAME') # noqa F821
+    @_('SUBATTR') # noqa F821
     def sub_attr(self, p):
-        return ast.SubAttr(p[1])
+        return ast.SubAttr(p[0])
 
     def error(self, p):
         raise SCIMParesrError(f'Parsing error at: {p}')

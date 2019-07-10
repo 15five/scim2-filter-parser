@@ -31,8 +31,7 @@ class RFCExamples(TestCase):
         query = '''name.familyName co "O'Malley"'''
         expected = [
             ('ATTRNAME', 'name'),
-            ('DOT', '.'),
-            ('ATTRNAME', 'familyName'),
+            ('SUBATTR', 'familyName'),
             ('CO', 'co'),
             ('COMP_VALUE', "O'Malley")
         ]
@@ -69,8 +68,7 @@ class RFCExamples(TestCase):
         query = 'meta.lastModified gt "2011-05-13T04:42:34Z"'
         expected = [
             ('ATTRNAME', 'meta'),
-            ('DOT', '.'),
-            ('ATTRNAME', 'lastModified'),
+            ('SUBATTR', 'lastModified'),
             ('GT', 'gt'),
             ('COMP_VALUE', '2011-05-13T04:42:34Z'),
         ]
@@ -80,8 +78,7 @@ class RFCExamples(TestCase):
         query = 'meta.lastModified ge "2011-05-13T04:42:34Z"'
         expected = [
             ('ATTRNAME', 'meta'),
-            ('DOT', '.'),
-            ('ATTRNAME', 'lastModified'),
+            ('SUBATTR', 'lastModified'),
             ('GE', 'ge'),
             ('COMP_VALUE', '2011-05-13T04:42:34Z'),
         ]
@@ -91,8 +88,7 @@ class RFCExamples(TestCase):
         query = 'meta.lastModified lt "2011-05-13T04:42:34Z"'
         expected = [
             ('ATTRNAME', 'meta'),
-            ('DOT', '.'),
-            ('ATTRNAME', 'lastModified'),
+            ('SUBATTR', 'lastModified'),
             ('LT', 'lt'),
             ('COMP_VALUE', '2011-05-13T04:42:34Z'),
         ]
@@ -102,8 +98,7 @@ class RFCExamples(TestCase):
         query = 'meta.lastModified le "2011-05-13T04:42:34Z"'
         expected = [
             ('ATTRNAME', 'meta'),
-            ('DOT', '.'),
-            ('ATTRNAME', 'lastModified'),
+            ('SUBATTR', 'lastModified'),
             ('LE', 'le'),
             ('COMP_VALUE', '2011-05-13T04:42:34Z'),
         ]
@@ -155,8 +150,7 @@ class RFCExamples(TestCase):
             ('COMP_VALUE', 'example.com'),
             ('OR', 'or'),
             ('ATTRNAME', 'emails'),
-            ('DOT', '.'),
-            ('ATTRNAME', 'value'),
+            ('SUBATTR', 'value'),
             ('CO', 'co'),
             ('COMP_VALUE', 'example.org'),
             ('RPAREN', ')')
@@ -177,8 +171,7 @@ class RFCExamples(TestCase):
             ('COMP_VALUE', 'example.com'),
             ('OR', 'or'),
             ('ATTRNAME', 'emails'),
-            ('DOT', '.'),
-            ('ATTRNAME', 'value'),
+            ('SUBATTR', 'value'),
             ('CO', 'co'),
             ('COMP_VALUE', 'example.org'),
             ('RPAREN', ')')
@@ -194,8 +187,7 @@ class RFCExamples(TestCase):
             ('AND', 'and'),
             ('LPAREN', '('),
             ('ATTRNAME', 'emails'),
-            ('DOT', '.'),
-            ('ATTRNAME', 'type'),
+            ('SUBATTR', 'type'),
             ('EQ', 'eq'),
             ('COMP_VALUE', 'work'),
             ('RPAREN', ')')
@@ -273,12 +265,13 @@ class RegressionTestQueries(TestCase):
             ('EQ', 'eq'),
             ('COMP_VALUE', 'work'),
             ('RBRACKET', ']'),
-            ('DOT', '.'),
-            ('ATTRNAME', 'country'),
+            ('SUBATTR', 'country'),
             ('EQ', 'eq'),
             ('COMP_VALUE', '')
         ]
         self.assertTokens(query, expected)
+
+
 
 class AzureQueries(TestCase):
     def setUp(self):
@@ -302,8 +295,7 @@ class AzureQueries(TestCase):
             ('EQ', 'eq'),
             ('COMP_VALUE', 'Primary'),
             ('RBRACKET', ']'),
-            ('DOT', '.'),
-            ('ATTRNAME', 'value'),
+            ('SUBATTR', 'value'),
             ('EQ', 'eq'),
             ('COMP_VALUE', '001750ca-8202-47cd-b553-c63f4f245940')
         ]
@@ -322,8 +314,7 @@ class AzureQueries(TestCase):
         query = 'emails.value eq "001750ca-8202-47cd-b553-c63f4f245940"'
         expected = [
             ('ATTRNAME', 'emails'),
-            ('DOT', '.'),
-            ('ATTRNAME', 'value'),
+            ('SUBATTR', 'value'),
             ('EQ', 'eq'),
             ('COMP_VALUE', '001750ca-8202-47cd-b553-c63f4f245940')
         ]
