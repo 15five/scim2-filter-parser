@@ -1,6 +1,14 @@
 CHANGE LOG
 ==========
 
+0.2.2
+-----
+- Allow value_path to be an attr_path.
+
+  This change is not in spec but allows us to handle things
+  like 'members[value eq "6784"] eq ""' which are helpful for
+  AttrPath parsing for PATCH calls.
+
 0.2.1
 -----
 - Fix long staging tokening error
