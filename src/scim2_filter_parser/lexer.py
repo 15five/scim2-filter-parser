@@ -171,7 +171,7 @@ class SCIMLexer(Lexer):
     #     which takes precedence over "or"
     # 3.  Attribute operators
 
-    ignore = ' \t'
+    ignore = '\t'
 
     @_(r'\.[a-zA-Z][a-zA-Z0-9_-]*')
     def SUBATTR(self, t):
@@ -179,21 +179,71 @@ class SCIMLexer(Lexer):
         return t
 
     # Attribute Operators
-    EQ = r'(E|e)(Q|q)'
-    NE = r'(N|n)(E|e)'
-    CO = r'(C|c)(O|o)'
-    SW = r'(S|s)(W|w)'
-    EW = r'(E|e)(W|w)'
-    PR = r'(P|p)(R|r)'
-    GT = r'(G|g)(T|t)'
-    GE = r'(G|g)(E|e)'
-    LT = r'(L|l)(T|t)'
-    LE = r'(L|l)(E|e)'
+    @_(r' (E|e)(Q|q) ')
+    def EQ(self, t):
+        t.value = t.value.strip()
+        return t
+
+    @_(r' (N|n)(E|e) ')
+    def NE(self, t):
+        t.value = t.value.strip()
+        return t
+
+    @_(r' (C|c)(O|o) ')
+    def CO(self, t):
+        t.value = t.value.strip()
+        return t
+
+    @_(r' (S|s)(W|w) ')
+    def SW(self, t):
+        t.value = t.value.strip()
+        return t
+
+    @_(r' (E|e)(W|w) ')
+    def EW(self, t):
+        t.value = t.value.strip()
+        return t
+
+    @_(r' (P|p)(R|r) ')
+    def PR(self, t):
+        t.value = t.value.strip()
+        return t
+
+    @_(r' (G|g)(T|t) ')
+    def GT(self, t):
+        t.value = t.value.strip()
+        return t
+
+    @_(r' (G|g)(E|e) ')
+    def GE(self, t):
+        t.value = t.value.strip()
+        return t
+
+    @_(r' (L|l)(T|t) ')
+    def LT(self, t):
+        t.value = t.value.strip()
+        return t
+
+    @_(r' (L|l)(E|e) ')
+    def LE(self, t):
+        t.value = t.value.strip()
+        return t
 
     # Logical Operators
-    AND = r'(A|a)(N|n)(D|d)'
-    OR = r'(O|o)(R|r)'
-    NOT = r'(N|n)(O|o)(T|t)'
+    @_(r' (A|a)(N|n)(D|d) ')
+    def AND(self, t):
+        t.value = t.value.strip()
+        return t
+
+    @_(r' (O|o)(R|r) ')
+    def OR(self, t):
+        t.value = t.value.strip()
+        return t
+
+    @_(r' (N|n)(O|o)(T|t) ')
+    def NOT(self, t):
+        t.value = t.value.strip()
+        return t
 
     # Grouping Operators
     LPAREN = r'\('
