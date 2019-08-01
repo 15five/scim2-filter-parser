@@ -286,6 +286,72 @@ class RegressionTestQueries(TestCase):
         self.assertTokens(query, expected)
 
 
+class TokenNotMistakenAsOperatorTestQueries(TestCase):
+    def setUp(self):
+        self.lexer = lexer.SCIMLexer()
+
+    def get_token_tuples(self, query):
+        return self.lexer.tokenize(query)
+
+    def assertTokens(self, query, expected):
+        token_tuples = [
+            (token.type, token.value) for token in self.get_token_tuples(query)
+        ]
+        self.assertEqual(expected, token_tuples)
+
+    def test_pr_in_preferred_not_considered_pr_token(self):
+        query = 'preferredLanguage eq ""'
+        expected = [
+            ('ATTRNAME', 'preferredLanguage'),
+            ('EQ', 'eq'),
+            ('COMP_VALUE', ''),
+        ]
+        self.assertTokens(query, expected)
+
+    def test_cap_pr_token(self):
+        query = 'lang Pr'
+        expected = [
+            ('ATTRNAME', 'lang'),
+            ('PR', 'Pr'),
+        ]
+        self.assertTokens(query, expected)
+
+    def test_token_startswith_op_code(self):
+        op_codes = {
+            'eg', 'ne', 'co', 'sw', 'ew', 'pr', 'gt', 'ge', 'lt', 'le',
+            'and', 'or', 'not'
+        }
+        for op_code in op_codes:
+            for permuation in self.get_op_permutation(op_code):
+                attrname = permuation + 'ing'  # Add any suffix to make token an attrname
+                attr_token, eq_token, comp_token = self.get_token_tuples(attrname + ' eq ""')
+
+                self.assertEquals(attr_token.type, 'ATTRNAME')
+                self.assertEquals(attr_token.value, attrname)
+                self.assertEquals(eq_token.type, 'EQ')
+                self.assertEquals(comp_token.type, 'COMP_VALUE')
+
+    def get_op_permutation(self, op_code):
+        """
+        Get all the capitalization permutations for a specific op_code.
+        """
+        permuations = []
+        for i in range(2 ** len(op_code)):
+            # use bits as indices to capitalize
+            mask = str(bin(i)).replace('0b', '').zfill(len(op_code))
+
+            permuation = ''
+            for j, char in enumerate(op_code):
+                if mask[j:j+1] == '1':
+                    permuation += char.upper()
+                else:
+                    permuation += char.lower()
+
+            permuations.append(permuation)
+
+        return permuations
+
+
 class AzureQueries(TestCase):
     def setUp(self):
         self.lexer = lexer.SCIMLexer()

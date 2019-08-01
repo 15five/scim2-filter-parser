@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+0.2.3
+-----
+- Fix lexer error where op codes are mistaken for attrnames
+
 0.2.2
 -----
 - Allow value_path to be an attr_path.

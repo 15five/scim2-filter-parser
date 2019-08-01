@@ -178,23 +178,6 @@ class SCIMLexer(Lexer):
         t.value = t.value.lstrip('.')
         return t
 
-    # Attribute Operators
-    EQ = r'(E|e)(Q|q)'
-    NE = r'(N|n)(E|e)'
-    CO = r'(C|c)(O|o)'
-    SW = r'(S|s)(W|w)'
-    EW = r'(E|e)(W|w)'
-    PR = r'(P|p)(R|r)'
-    GT = r'(G|g)(T|t)'
-    GE = r'(G|g)(E|e)'
-    LT = r'(L|l)(T|t)'
-    LE = r'(L|l)(E|e)'
-
-    # Logical Operators
-    AND = r'(A|a)(N|n)(D|d)'
-    OR = r'(O|o)(R|r)'
-    NOT = r'(N|n)(O|o)(T|t)'
-
     # Grouping Operators
     LPAREN = r'\('
     RPAREN = r'\)'
@@ -216,6 +199,81 @@ class SCIMLexer(Lexer):
         return t
 
     ATTRNAME = r'[a-zA-Z][a-zA-Z0-9_-]*'
+
+    # Attribute Operators
+    ATTRNAME['eq'] = EQ
+    ATTRNAME['Eq'] = EQ
+    ATTRNAME['eQ'] = EQ
+    ATTRNAME['EQ'] = EQ
+
+    ATTRNAME['ne'] = NE
+    ATTRNAME['Ne'] = NE
+    ATTRNAME['nE'] = NE
+    ATTRNAME['NE'] = NE
+
+    ATTRNAME['co'] = CO
+    ATTRNAME['Co'] = CO
+    ATTRNAME['cO'] = CO
+    ATTRNAME['CO'] = CO
+
+    ATTRNAME['sw'] = SW
+    ATTRNAME['Sw'] = SW
+    ATTRNAME['sW'] = SW
+    ATTRNAME['SW'] = SW
+
+    ATTRNAME['ew'] = EW
+    ATTRNAME['Ew'] = EW
+    ATTRNAME['eW'] = EW
+    ATTRNAME['EW'] = EW
+
+    ATTRNAME['pr'] = PR
+    ATTRNAME['Pr'] = PR
+    ATTRNAME['pR'] = PR
+    ATTRNAME['PR'] = PR
+
+    ATTRNAME['gt'] = GT
+    ATTRNAME['Gt'] = GT
+    ATTRNAME['gT'] = GT
+    ATTRNAME['GT'] = GT
+
+    ATTRNAME['ge'] = GE
+    ATTRNAME['Ge'] = GE
+    ATTRNAME['gE'] = GE
+    ATTRNAME['GE'] = GE
+
+    ATTRNAME['lt'] = LT
+    ATTRNAME['Lt'] = LT
+    ATTRNAME['lT'] = LT
+    ATTRNAME['LT'] = LT
+
+    ATTRNAME['le'] = LE
+    ATTRNAME['Le'] = LE
+    ATTRNAME['lE'] = LE
+    ATTRNAME['LE'] = LE
+
+    # Logical Operators
+    ATTRNAME['and'] = AND
+    ATTRNAME['And'] = AND
+    ATTRNAME['aNd'] = AND
+    ATTRNAME['ANd'] = AND
+    ATTRNAME['anD'] = AND
+    ATTRNAME['AnD'] = AND
+    ATTRNAME['aND'] = AND
+    ATTRNAME['AND'] = AND
+
+    ATTRNAME['or'] = OR
+    ATTRNAME['Or'] = OR
+    ATTRNAME['oR'] = OR
+    ATTRNAME['OR'] = OR
+
+    ATTRNAME['not'] = NOT
+    ATTRNAME['Not'] = NOT
+    ATTRNAME['nOt'] = NOT
+    ATTRNAME['NOt'] = NOT
+    ATTRNAME['noT'] = NOT
+    ATTRNAME['NoT'] = NOT
+    ATTRNAME['nOT'] = NOT
+    ATTRNAME['NOT'] = NOT
 
     @_(r'"([^"]*)"')
     def COMP_VALUE(self, t):
