@@ -3,6 +3,7 @@ The logic in this module builds a portion of a WHERE SQL
 clause based on a SCIM filter.
 """
 import ast
+import string
 
 from .. import ast as scim2ast
 
@@ -19,7 +20,7 @@ class Transpiler(ast.NodeTransformer):
         self.attr_map = attr_map
         self.attr_paths = []
 
-    def transpile(self, ast) -> str:
+    def transpile(self, ast) -> (str, dict):
         sql = self.visit(ast)
 
         return sql, self.params
@@ -109,14 +110,16 @@ class Transpiler(ast.NodeTransformer):
     def visit_AttrExprValue(self, node_value, node_comp_value):
         op_sql = self.lookup_op(node_value)
 
+        item_id = self.get_next_id()
+
         if not node_comp_value:
+            self.params[item_id] = None
             return op_sql
 
         # There is a comp_value, so visit node and build SQL.
-        item_id = len(self.params)
 
         # prep item_id to be a str replacement placeholder
-        item_id_placeholder = '{' + str(item_id) + '}'
+        item_id_placeholder = '{' + item_id + '}'
 
         if 'LIKE' == op_sql:
             # Add appropriate % signs to values in LIKE clause
@@ -153,6 +156,12 @@ class Transpiler(ast.NodeTransformer):
         # TODO: Handle timestamps!
 
         return node.value
+
+    def get_next_id(self):
+        index = len(self.params)
+        if index >= len(string.ascii_lowercase):
+            raise IndexError('Too many params in query. Can not store all of them.')
+        return string.ascii_lowercase[index]
 
     def lookup_op(self, node_value):
         op_code = node_value.lower()

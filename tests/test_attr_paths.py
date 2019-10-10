@@ -5,8 +5,19 @@ from unittest import TestCase
 
 from scim2_filter_parser import attr_paths as attr_paths_mod
 
+class TestAttrPathMixin:
+    def assertAttrPaths(self, query, expected_attr_paths):
+        attr_paths = attr_paths_mod.AttrPaths(query, self.attr_map)
 
-class RFCExamples(TestCase):
+        self.assertEqual(expected_attr_paths, list(attr_paths))
+
+    def assertAttrPathParams(self, query, expected_params_dict):
+        attr_paths = attr_paths_mod.AttrPaths(query, self.attr_map)
+
+        self.assertEqual(expected_params_dict, attr_paths.params_by_attr_paths)
+
+
+class RFCExamples(TestAttrPathMixin, TestCase):
     attr_map = {
         ('name', 'familyName', None): 'name.familyname',
         ('emails', None, None): 'emails',
@@ -22,73 +33,104 @@ class RFCExamples(TestCase):
         ('ims', 'value', None): 'ims.value',
     }
 
-    def assertAttrPaths(self, query, expected_attr_paths):
-        attr_paths = attr_paths_mod.AttrPaths(query, self.attr_map)
-
-        self.assertEqual(expected_attr_paths, list(attr_paths))
-
     def test_username_eq(self):
         query = 'userName eq "bjensen"'
         attr_paths = [
             ('userName', None, None),
         ]
+        params_dict = {
+            ('userName', None, None): 'bjensen',
+        }
         self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPathParams(query, params_dict)
 
     def test_family_name_contains(self):
         query = '''name.familyName co "O'Malley"'''
         attr_paths = [
             ('name', 'familyName', None),
         ]
+        params_dict = {
+            ('name', 'familyName', None): "%O'Malley%",
+        }
         self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPathParams(query, params_dict)
 
     def test_username_startswith(self):
         query = 'userName sw "J"'
         attr_paths = [
             ('userName', None, None),
         ]
+        params_dict = {
+            ('userName', None, None): 'J%',
+        }
         self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPathParams(query, params_dict)
 
     def test_schema_username_startswith(self):
         query = 'urn:ietf:params:scim:schemas:core:2.0:User:userName sw "J"'
         attr_paths = [
             ('userName', None, 'urn:ietf:params:scim:schemas:core:2.0:User'),
         ]
+        params_dict = {
+            ('userName', None, 'urn:ietf:params:scim:schemas:core:2.0:User'): 'J%',
+        }
         self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPathParams(query, params_dict)
 
     def test_title_has_value(self):
         query = 'title pr'
         attr_paths = [
             ('title', None, None),
         ]
+        params_dict = {
+            ('title', None, None): None,
+        }
         self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPathParams(query, params_dict)
 
     def test_meta_last_modified_gt(self):
         query = 'meta.lastModified gt "2011-05-13T04:42:34Z"'
         attr_paths = [
             ('meta', 'lastModified', None),
         ]
+        params_dict = {
+            ('meta', 'lastModified', None): '2011-05-13T04:42:34Z'
+        }
         self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPathParams(query, params_dict)
 
     def test_meta_last_modified_ge(self):
         query = 'meta.lastModified ge "2011-05-13T04:42:34Z"'
         attr_paths = [
             ('meta', 'lastModified', None),
         ]
+        params_dict = {
+            ('meta', 'lastModified', None): '2011-05-13T04:42:34Z'
+        }
         self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPathParams(query, params_dict)
 
     def test_meta_last_modified_lt(self):
         query = 'meta.lastModified lt "2011-05-13T04:42:34Z"'
         attr_paths = [
             ('meta', 'lastModified', None),
         ]
+        params_dict = {
+            ('meta', 'lastModified', None): '2011-05-13T04:42:34Z'
+        }
         self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPathParams(query, params_dict)
 
     def test_meta_last_modified_le(self):
         query = 'meta.lastModified le "2011-05-13T04:42:34Z"'
         attr_paths = [
             ('meta', 'lastModified', None),
         ]
+        params_dict = {
+            ('meta', 'lastModified', None): '2011-05-13T04:42:34Z'
+        }
         self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPathParams(query, params_dict)
 
     def test_title_has_value_and_user_type_eq(self):
         query = 'title pr and userType eq "Employee"'
@@ -96,7 +138,12 @@ class RFCExamples(TestCase):
             ('title', None, None),
             ('userType', None, None),
         ]
+        params_dict = {
+            ('title', None, None): None,
+            ('userType', None, None): 'Employee',
+        }
         self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPathParams(query, params_dict)
 
     def test_title_has_value_or_user_type_eq(self):
         query = 'title pr or userType eq "Intern"'
@@ -104,14 +151,23 @@ class RFCExamples(TestCase):
             ('title', None, None),
             ('userType', None, None),
         ]
+        params_dict = {
+            ('title', None, None): None,
+            ('userType', None, None): 'Intern',
+        }
         self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPathParams(query, params_dict)
 
     def test_schemas_eq(self):
         query = 'schemas eq "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User"'
         attr_paths = [
             ('schemas', None, None),
         ]
+        params_dict = {
+            ('schemas', None, None): 'urn:ietf:params:scim:schemas:extension:enterprise:2.0:User',
+        }
         self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPathParams(query, params_dict)
 
     def test_user_type_eq_and_email_contains_or_email_contains(self):
         query = 'userType eq "Employee" and (emails co "example.com" or emails.value co "example.org")'
@@ -120,7 +176,13 @@ class RFCExamples(TestCase):
             ('emails', None, None),
             ('emails', 'value', None),
         ]
+        params_dict = {
+            ('userType', None, None): 'Employee',
+            ('emails', None, None): '%example.com%',
+            ('emails', 'value', None): '%example.org%',
+        }
         self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPathParams(query, params_dict)
 
     def test_user_type_ne_and_not_email_contains_or_email_contains(self):
         query = 'userType ne "Employee" and not (emails co "example.com" or emails.value co "example.org")'
@@ -129,7 +191,13 @@ class RFCExamples(TestCase):
             ('emails', None, None),
             ('emails', 'value', None),
         ]
+        params_dict = {
+            ('userType', None, None): 'Employee',
+            ('emails', None, None): '%example.com%',
+            ('emails', 'value', None): '%example.org%',
+        }
         self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPathParams(query, params_dict)
 
     def test_user_type_eq_and_not_email_type_eq(self):
         query = 'userType eq "Employee" and (emails.type eq "work")'
@@ -137,7 +205,12 @@ class RFCExamples(TestCase):
             ('userType', None, None),
             ('emails', 'type', None),
         ]
+        params_dict = {
+            ('userType', None, None): 'Employee',
+            ('emails', 'type', None): 'work',
+        }
         self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPathParams(query, params_dict)
 
     def test_user_type_eq_and_not_email_type_eq_work_and_value_contains(self):
         query = 'userType eq "Employee" and emails[type eq "work" and value co "@example.com"]'
@@ -146,7 +219,13 @@ class RFCExamples(TestCase):
             ('emails', 'type', None),
             ('emails', 'value', None),
         ]
+        params_dict = {
+            ('userType', None, None): 'Employee',
+            ('emails', 'type', None): 'work',
+            ('emails', 'value', None): '%@example.com%',
+        }
         self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPathParams(query, params_dict)
 
     def test_emails_type_eq_work_value_contians_or_ims_type_eq_and_value_contians(self):
         query = ('emails[type eq "work" and value co "@example.com"] or '
@@ -157,19 +236,21 @@ class RFCExamples(TestCase):
             ('ims', 'type', None),
             ('ims', 'value', None),
         ]
+        params_dict = {
+            ('emails', 'type', None): 'work',
+            ('emails', 'value', None): '%@example.com%',
+            ('ims', 'type', None): 'xmpp',
+            ('ims', 'value', None): '%@foo.com%',
+        }
         self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPathParams(query, params_dict)
 
 
-class AzureQueries(TestCase):
+class AzureQueries(TestAttrPathMixin, TestCase):
     attr_map = {
         ('emails', 'type', None): 'emails.type',
         ('emails', 'value', None): 'emails.value',
     }
-
-    def assertAttrPaths(self, query, expected_attr_paths):
-        attr_paths = attr_paths_mod.AttrPaths(query, self.attr_map)
-
-        self.assertEqual(expected_attr_paths, list(attr_paths))
 
     def test_email_type_eq_primary_value_eq_uuid(self):
         query = 'emails[type eq "Primary"].value eq "001750ca-8202-47cd-b553-c63f4f245940"'
@@ -177,7 +258,29 @@ class AzureQueries(TestCase):
             ('emails', 'type', None),
             ('emails', 'value', None),
         ]
+        params_dict = {
+            ('emails', 'type', None): 'Primary',
+            ('emails', 'value', None): '001750ca-8202-47cd-b553-c63f4f245940',
+        }
         self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPathParams(query, params_dict)
+
+
+class GroupQueries(TestAttrPathMixin, TestCase):
+    attr_map = {
+        ('members', 'value', None): 'members.value',
+    }
+
+    def test_email_type_eq_primary_value_eq_uuid(self):
+        query = 'members[value eq "337991"]'
+        attr_paths = [
+            ('members', 'value', None),
+        ]
+        params_dict = {
+            ('members', 'value', None): '337991',
+        }
+        self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPathParams(query, params_dict)
 
 
 class CommandLine(TestCase):
@@ -194,4 +297,3 @@ class CommandLine(TestCase):
         result = self.test_stdout.getvalue().strip()
         expected = [['userName', None, None]]
         self.assertEqual(json.loads(result), expected)
-
