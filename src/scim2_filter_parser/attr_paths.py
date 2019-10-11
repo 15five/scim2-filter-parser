@@ -1,9 +1,11 @@
 """
 The logic in this module extracts the path sent in a filter query.
 
-RFC 7644, Figure 7: SCIM PATCH PATH Rule, ABNF:
+::
 
-    PATH = attrPath / valuePath [subAttr]
+    RFC 7644, Figure 7: SCIM PATCH PATH Rule, ABNF:
+
+        PATH = attrPath / valuePath [subAttr]
 """
 import json
 

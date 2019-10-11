@@ -1,7 +1,4 @@
 '''
-Abstract Syntax Tree (AST) objects.
------------------------------------
-
 This file defines classes for different kinds of nodes of an Abstract
 Syntax Tree. In general, you will have a different AST node for
 each kind of grammar rule.
@@ -136,7 +133,7 @@ class NodeVisitor(metaclass=NodeVisitMeta):
     which should be implemented in subclasses.  The generic_visit() method
     is called for all nodes where there is no matching visit_NodeName() method.
 
-    Here is a example of a visitor that examines binary operators:
+    Here is a example of a visitor that examines binary operators::
 
         class VisitOps(NodeVisitor):
             visit_BinOp(self,node):
@@ -165,8 +162,8 @@ class NodeVisitor(metaclass=NodeVisitMeta):
 
     def generic_visit(self, node):
         '''
-        Method executed if no applicable visit_ method can be found.
-        This examines the node to see if it has _fields, is a list,
+        Method executed if no applicable `visit_` method can be found.
+        This examines the node to see if it has `_fields`, is a list,
         or can be further traversed.
         '''
         for field in getattr(node, '_fields'):
