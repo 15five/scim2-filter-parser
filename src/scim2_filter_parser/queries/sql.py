@@ -15,8 +15,8 @@ class SQLQuery:
         self.attr_map: dict = attr_map
         self.joins = joins
         self.where_sql: str = None
-        self.where_params: dict = None
-        self.params: list = None
+        self.params_dict: dict = {}
+        self.params: list = []
 
         self.token_stream = None
         self.ast = None
@@ -28,12 +28,9 @@ class SQLQuery:
         self.token_stream = SCIMLexer().tokenize(self.filter)
         self.ast = SCIMParser().parse(self.token_stream)
         self.transpiler = Transpiler(self.attr_map)
-        sql, params = self.transpiler.transpile(self.ast)
-
-        self.where_sql = sql
-        self.where_params = params
-
-        self.params = [params.get(i) for i in range(len(params))]
+        self.where_sql, self.params_dict = self.transpiler.transpile(self.ast)
+        self.params = [self.params_dict[k] for k, _v in sorted(self.params_dict.items())
+                       if self.params_dict[k] is not None]
 
     @property
     def sql(self) -> str:
@@ -47,9 +44,10 @@ class SQLQuery:
 
         # Replace {#} with placeholder string. Different database
         # connectors can override this with their own placeholder character.
-        placeholders = [self.placeholder for i in range(len(self.params))]
+        placeholders = {i: self.placeholder for i in self.params_dict}
+
         if self.where_sql:
-            where_sql = self.where_sql.format(*placeholders)
+            where_sql = self.where_sql.format(**placeholders)
             lines.append(f'WHERE {where_sql}')
 
         lines[-1] += ';'  # Complete all SQL with semicolon

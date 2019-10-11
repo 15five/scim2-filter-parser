@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+0.3.0
+-----
+- Add COMP_VALUEs to AttrPath objects
+
 0.2.4
 -----
 - Add rST docs to project

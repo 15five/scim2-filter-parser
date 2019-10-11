@@ -8,6 +8,7 @@ The logic in this module extracts the path sent in a filter query.
         PATH = attrPath / valuePath [subAttr]
 """
 import json
+import string
 
 from .lexer import SCIMLexer
 from .parser import SCIMParser
@@ -30,6 +31,16 @@ class AttrPaths:
         self.ast = SCIMParser().parse(self.token_stream)
         self.transpiler = Transpiler(self.attr_map)
         self.transpiler.transpile(self.ast)
+
+    @property
+    def params_by_attr_paths(self) -> dict:
+        params_by_paths = {}
+        for i, path in enumerate(self):
+            param_name = string.ascii_lowercase[i]
+            param_value = self.transpiler.params.get(param_name)
+            params_by_paths[path] = param_value
+
+        return params_by_paths
 
     def __iter__(self):
         return iter(self.transpiler.attr_paths)
@@ -73,4 +84,3 @@ def main(argv=None):
 
 if __name__ == '__main__':
     main()
-
