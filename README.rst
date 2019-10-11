@@ -1,13 +1,17 @@
 SCIM 2.0 Filter Parser
 ======================
 
-|travis| |codecov|
+|travis| |codecov| |docs|
 
 .. |travis| image:: https://travis-ci.com/15five/scim2-filter-parser.svg?branch=master
   :target: https://travis-ci.com/15five/scim2-filter-parser
 
 .. |codecov| image:: https://codecov.io/gh/15five/scim2-filter-parser/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/15five/scim2-filter-parser
+
+.. |docs| image:: https://readthedocs.org/projects/scim2-filter-parser/badge/?version=latest
+  :target: https://scim2-filter-parser.readthedocs.io/en/latest/?badge=latest
+  :alt: Documentation Status
 
 Description
 -----------
