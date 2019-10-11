@@ -64,10 +64,12 @@ class Transpiler(ast.NodeTransformer):
 
     def visit_PartialAttrExpr(self, node):
         """
-        Dissect rather complex queries like the following:
+        Dissect rather complex queries like the following::
+
             emails[type eq "Primary"].value eq "001750ca-8202-47cd-b553-c63f4f245940"
 
-        First we restructure to something like this:
+        First we restructure to something like this::
+
             emails.value[type eq "Primary"] eq "001750ca-8202-47cd-b553-c63f4f245940"
 
         Then we get SQL like this 'emails.type = {0}' and 'emails.value'.

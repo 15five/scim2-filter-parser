@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+0.2.4
+-----
+- Add rST docs to project
+
 0.2.3
 -----
 - Fix lexer error where op codes are mistaken for attrnames

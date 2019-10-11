@@ -4,6 +4,8 @@ filter query.
 
 See https://tools.ietf.org/html/rfc7644#section-3.4.2.2 for more details.
 
+::
+
    The operators supported in the expression are listed in Table 3.
 
    +----------+-------------+------------------------------------------+

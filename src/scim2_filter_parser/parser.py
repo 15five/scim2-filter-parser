@@ -1,88 +1,90 @@
 '''
 This file defines the parser class that is used to parse a given SCIM query.
 
-See https://tools.ietf.org/html/rfc7644#section-3.4.2.2 for more details.
+See https://tools.ietf.org/html/rfc7644#section-3.4.2.2 for more details
 
-   SCIM filters MUST conform to the following ABNF [RFC5234] rules as
-   specified below:
+::
 
-     FILTER    = attrExp / logExp / valuePath / *1"not" "(" FILTER ")"
+    SCIM filters MUST conform to the following ABNF [RFC5234] rules as
+    specified below:
 
-     valuePath = attrPath "[" valFilter "]"
-                 ; FILTER uses sub-attributes of a parent attrPath
+      FILTER    = attrExp / logExp / valuePath / *1"not" "(" FILTER ")"
 
-     valFilter = attrExp / logExp / *1"not" "(" valFilter ")"
+      valuePath = attrPath "[" valFilter "]"
+                  ; FILTER uses sub-attributes of a parent attrPath
 
-     attrExp   = (attrPath SP "pr") /
-                 (attrPath SP compareOp SP compValue)
+      valFilter = attrExp / logExp / *1"not" "(" valFilter ")"
 
-     logExp    = FILTER SP ("and" / "or") SP FILTER
+      attrExp   = (attrPath SP "pr") /
+                  (attrPath SP compareOp SP compValue)
 
-     compValue = false / null / true / number / string
-                 ; rules from JSON (RFC 7159)
+      logExp    = FILTER SP ("and" / "or") SP FILTER
 
-     compareOp = "eq" / "ne" / "co" /
-                        "sw" / "ew" /
-                        "gt" / "lt" /
-                        "ge" / "le"
+      compValue = false / null / true / number / string
+                  ; rules from JSON (RFC 7159)
 
-     attrPath  = [URI ":"] ATTRNAME *1subAttr
-                 ; SCIM attribute name
-                 ; URI is SCIM "schema" URI
+      compareOp = "eq" / "ne" / "co" /
+                         "sw" / "ew" /
+                         "gt" / "lt" /
+                         "ge" / "le"
 
-     ATTRNAME  = ALPHA *(nameChar)
+      attrPath  = [URI ":"] ATTRNAME *1subAttr
+                  ; SCIM attribute name
+                  ; URI is SCIM "schema" URI
 
-     nameChar  = "-" / "_" / DIGIT / ALPHA
+      ATTRNAME  = ALPHA *(nameChar)
 
-     subAttr   = "." ATTRNAME
-                 ; a sub-attribute of a complex attribute
+      nameChar  = "-" / "_" / DIGIT / ALPHA
 
-               Figure 1: ABNF Specification of SCIM Filters
+      subAttr   = "." ATTRNAME
+                  ; a sub-attribute of a complex attribute
 
-   In the above ABNF rules, the "compValue" (comparison value) rule is
-   built on JSON Data Interchange format ABNF rules as specified in
-   [RFC7159], "DIGIT" and "ALPHA" are defined per Appendix B.1 of
-   [RFC5234], and "URI" is defined per Appendix A of [RFC3986].
+                Figure 1: ABNF Specification of SCIM Filters
 
-   Filters MUST be evaluated using the following order of operations, in
-   order of precedence:
+    In the above ABNF rules, the "compValue" (comparison value) rule is
+    built on JSON Data Interchange format ABNF rules as specified in
+    [RFC7159], "DIGIT" and "ALPHA" are defined per Appendix B.1 of
+    [RFC5234], and "URI" is defined per Appendix A of [RFC3986].
 
-   1.  Grouping operators
+    Filters MUST be evaluated using the following order of operations, in
+    order of precedence:
 
-   2.  Logical operators - where "not" takes precedence over "and",
-       which takes precedence over "or"
+    1.  Grouping operators
 
-   3.  Attribute operators
+    2.  Logical operators - where "not" takes precedence over "and",
+        which takes precedence over "or"
 
-   If the specified attribute in a filter expression is a multi-valued
-   attribute, the filter matches if any of the values of the specified
-   attribute match the specified criterion; e.g., if a User has multiple
-   "emails" values, only one has to match for the entire User to match.
-   For complex attributes, a fully qualified sub-attribute MUST be
-   specified using standard attribute notation (Section 3.10).  For
-   example, to filter by userName, the parameter value is "userName".
-   To filter by first name, the parameter value is "name.givenName".
+    3.  Attribute operators
 
-   When applying a comparison (e.g., "eq") or presence filter (e.g.,
-   "pr") to a defaulted attribute, the service provider SHALL use the
-   value that was returned to the client that last created or modified
-   the attribute.
+    If the specified attribute in a filter expression is a multi-valued
+    attribute, the filter matches if any of the values of the specified
+    attribute match the specified criterion; e.g., if a User has multiple
+    "emails" values, only one has to match for the entire User to match.
+    For complex attributes, a fully qualified sub-attribute MUST be
+    specified using standard attribute notation (Section 3.10).  For
+    example, to filter by userName, the parameter value is "userName".
+    To filter by first name, the parameter value is "name.givenName".
 
-   Providers MAY support additional filter operations if they choose.
-   Providers MUST decline to filter results if the specified filter
-   operation is not recognized and return an HTTP 400 error with a
-   "scimType" error of "invalidFilter" and an appropriate human-readable
-   response as per Section 3.12.  For example, if a client specified an
-   unsupported operator named 'regex', the service provider should
-   specify an error response description identifying the client error,
-   e.g., 'The operator 'regex' is not supported.'
+    When applying a comparison (e.g., "eq") or presence filter (e.g.,
+    "pr") to a defaulted attribute, the service provider SHALL use the
+    value that was returned to the client that last created or modified
+    the attribute.
 
-   When comparing attributes of type String, the case sensitivity for
-   String type attributes SHALL be determined by the attribute's
-   "caseExact" characteristic (see Section 2.2 of [RFC7643]).
+    Providers MAY support additional filter operations if they choose.
+    Providers MUST decline to filter results if the specified filter
+    operation is not recognized and return an HTTP 400 error with a
+    "scimType" error of "invalidFilter" and an appropriate human-readable
+    response as per Section 3.12.  For example, if a client specified an
+    unsupported operator named 'regex', the service provider should
+    specify an error response description identifying the client error,
+    e.g., 'The operator 'regex' is not supported.'
 
-   Clients MAY query by schema or schema extensions by using a filter
-   expression including the "schemas" attribute (as shown in Figure 2).
+    When comparing attributes of type String, the case sensitivity for
+    String type attributes SHALL be determined by the attribute's
+    "caseExact" characteristic (see Section 2.2 of [RFC7643]).
+
+    Clients MAY query by schema or schema extensions by using a filter
+    expression including the "schemas" attribute (as shown in Figure 2).
 '''
 from sly import Parser
 

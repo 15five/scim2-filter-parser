@@ -163,17 +163,19 @@ with SQLite.
 The ``Query.params`` method returns a list of items that can be used as the
 second argument in a call to ``cursor.execute()``.
 
-Spped
+Speed
 -----
 
 SFP is pretty fast. Check out the speed_test.py script for details on the long and short
 filter queries tested. SFP transpiled a short filter query into SQL in under 54 microseconds.
 For a longer query, SFP only took 273 microseconds.
 
-➜  scim2-filter-parser git:(master) ✗ python -m timeit -s "import speed_test" "speed_test.short()"
-10000 loops, best of 3: 53.8 usec per loop
-➜  scim2-filter-parser git:(master) ✗ python -m timeit -s "import speed_test" "speed_test.long()"
-1000 loops, best of 3: 273 usec per loop
+::
+
+    ➜  scim2-filter-parser git:(master) ✗ python -m timeit -s "import speed_test" "speed_test.short()"
+    10000 loops, best of 3: 53.8 usec per loop
+    ➜  scim2-filter-parser git:(master) ✗ python -m timeit -s "import speed_test" "speed_test.long()"
+    1000 loops, best of 3: 273 usec per loop
 
 ---
 
