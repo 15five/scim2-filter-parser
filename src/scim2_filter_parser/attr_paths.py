@@ -90,6 +90,13 @@ class AttrPath:
 
         return params_by_paths
 
+    @property
+    def first_path(self) -> tuple:
+        """
+        Return first path in list of parsed attr paths.
+        """
+        return self.transpiler.attr_paths[0]
+
     def __iter__(self):
         return iter(self.transpiler.attr_paths)
 

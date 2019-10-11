@@ -5,6 +5,7 @@ from unittest import TestCase
 
 from scim2_filter_parser import attr_paths as attr_paths_mod
 
+
 class TestAttrPathMixin:
     def assertAttrPath(self, query, expected_attr_paths):
         attr_paths = attr_paths_mod.AttrPath(query, self.attr_map)
@@ -281,6 +282,23 @@ class ComplexQueries(TestCase):
         query = 'emails[type eq "Primary"].value eq "001750ca-8202-47cd-b553-c63f4f245940"'
         attr_paths = attr_paths_mod.AttrPath(query, self.attr_map)
         self.assertTrue(attr_paths.is_complex)
+
+
+class FirstPathQueries(TestCase):
+    attr_map = {
+        ('emails', 'type', None): 'emails.type',
+        ('emails', 'value', None): 'emails.value',
+    }
+
+    def test_not_complex(self):
+        query = 'emails.value eq "001750ca-8202-47cd-b553-c63f4f245940"'
+        attr_paths = attr_paths_mod.AttrPath(query, self.attr_map)
+        self.assertEqual(attr_paths.first_path, ('emails', 'value', None))
+
+    def test_complex(self):
+        query = 'emails[type eq "Primary"].value eq "001750ca-8202-47cd-b553-c63f4f245940"'
+        attr_paths = attr_paths_mod.AttrPath(query, self.attr_map)
+        self.assertEqual(attr_paths.first_path, ('emails', 'type', None))
 
 
 class GroupQueries(TestAttrPathMixin, TestCase):
