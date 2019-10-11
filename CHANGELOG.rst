@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+0.3.2
+-----
+- Add first_path method on AttrPath object
+
 0.3.1
 -----
 - Change name of AttrPaths -> AttrPath and add logic to check for complexity
