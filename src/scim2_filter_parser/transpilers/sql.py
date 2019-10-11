@@ -16,8 +16,8 @@ class Transpiler(ast.NodeTransformer):
     def __init__(self, attr_map, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.params = {}
         self.attr_map = attr_map
+        self.params = {}
         self.attr_paths = []
 
     def transpile(self, ast) -> (str, dict):

@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+0.3.1
+-----
+- Change name of AttrPaths -> AttrPath and add logic to check for complexity
+
 0.3.0
 -----
 - Add COMP_VALUEs to AttrPath objects

@@ -6,13 +6,13 @@ from unittest import TestCase
 from scim2_filter_parser import attr_paths as attr_paths_mod
 
 class TestAttrPathMixin:
-    def assertAttrPaths(self, query, expected_attr_paths):
-        attr_paths = attr_paths_mod.AttrPaths(query, self.attr_map)
+    def assertAttrPath(self, query, expected_attr_paths):
+        attr_paths = attr_paths_mod.AttrPath(query, self.attr_map)
 
         self.assertEqual(expected_attr_paths, list(attr_paths))
 
     def assertAttrPathParams(self, query, expected_params_dict):
-        attr_paths = attr_paths_mod.AttrPaths(query, self.attr_map)
+        attr_paths = attr_paths_mod.AttrPath(query, self.attr_map)
 
         self.assertEqual(expected_params_dict, attr_paths.params_by_attr_paths)
 
@@ -41,7 +41,7 @@ class RFCExamples(TestAttrPathMixin, TestCase):
         params_dict = {
             ('userName', None, None): 'bjensen',
         }
-        self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPath(query, attr_paths)
         self.assertAttrPathParams(query, params_dict)
 
     def test_family_name_contains(self):
@@ -52,7 +52,7 @@ class RFCExamples(TestAttrPathMixin, TestCase):
         params_dict = {
             ('name', 'familyName', None): "%O'Malley%",
         }
-        self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPath(query, attr_paths)
         self.assertAttrPathParams(query, params_dict)
 
     def test_username_startswith(self):
@@ -63,7 +63,7 @@ class RFCExamples(TestAttrPathMixin, TestCase):
         params_dict = {
             ('userName', None, None): 'J%',
         }
-        self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPath(query, attr_paths)
         self.assertAttrPathParams(query, params_dict)
 
     def test_schema_username_startswith(self):
@@ -74,7 +74,7 @@ class RFCExamples(TestAttrPathMixin, TestCase):
         params_dict = {
             ('userName', None, 'urn:ietf:params:scim:schemas:core:2.0:User'): 'J%',
         }
-        self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPath(query, attr_paths)
         self.assertAttrPathParams(query, params_dict)
 
     def test_title_has_value(self):
@@ -85,7 +85,7 @@ class RFCExamples(TestAttrPathMixin, TestCase):
         params_dict = {
             ('title', None, None): None,
         }
-        self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPath(query, attr_paths)
         self.assertAttrPathParams(query, params_dict)
 
     def test_meta_last_modified_gt(self):
@@ -96,7 +96,7 @@ class RFCExamples(TestAttrPathMixin, TestCase):
         params_dict = {
             ('meta', 'lastModified', None): '2011-05-13T04:42:34Z'
         }
-        self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPath(query, attr_paths)
         self.assertAttrPathParams(query, params_dict)
 
     def test_meta_last_modified_ge(self):
@@ -107,7 +107,7 @@ class RFCExamples(TestAttrPathMixin, TestCase):
         params_dict = {
             ('meta', 'lastModified', None): '2011-05-13T04:42:34Z'
         }
-        self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPath(query, attr_paths)
         self.assertAttrPathParams(query, params_dict)
 
     def test_meta_last_modified_lt(self):
@@ -118,7 +118,7 @@ class RFCExamples(TestAttrPathMixin, TestCase):
         params_dict = {
             ('meta', 'lastModified', None): '2011-05-13T04:42:34Z'
         }
-        self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPath(query, attr_paths)
         self.assertAttrPathParams(query, params_dict)
 
     def test_meta_last_modified_le(self):
@@ -129,7 +129,7 @@ class RFCExamples(TestAttrPathMixin, TestCase):
         params_dict = {
             ('meta', 'lastModified', None): '2011-05-13T04:42:34Z'
         }
-        self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPath(query, attr_paths)
         self.assertAttrPathParams(query, params_dict)
 
     def test_title_has_value_and_user_type_eq(self):
@@ -142,7 +142,7 @@ class RFCExamples(TestAttrPathMixin, TestCase):
             ('title', None, None): None,
             ('userType', None, None): 'Employee',
         }
-        self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPath(query, attr_paths)
         self.assertAttrPathParams(query, params_dict)
 
     def test_title_has_value_or_user_type_eq(self):
@@ -155,7 +155,7 @@ class RFCExamples(TestAttrPathMixin, TestCase):
             ('title', None, None): None,
             ('userType', None, None): 'Intern',
         }
-        self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPath(query, attr_paths)
         self.assertAttrPathParams(query, params_dict)
 
     def test_schemas_eq(self):
@@ -166,7 +166,7 @@ class RFCExamples(TestAttrPathMixin, TestCase):
         params_dict = {
             ('schemas', None, None): 'urn:ietf:params:scim:schemas:extension:enterprise:2.0:User',
         }
-        self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPath(query, attr_paths)
         self.assertAttrPathParams(query, params_dict)
 
     def test_user_type_eq_and_email_contains_or_email_contains(self):
@@ -181,7 +181,7 @@ class RFCExamples(TestAttrPathMixin, TestCase):
             ('emails', None, None): '%example.com%',
             ('emails', 'value', None): '%example.org%',
         }
-        self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPath(query, attr_paths)
         self.assertAttrPathParams(query, params_dict)
 
     def test_user_type_ne_and_not_email_contains_or_email_contains(self):
@@ -196,7 +196,7 @@ class RFCExamples(TestAttrPathMixin, TestCase):
             ('emails', None, None): '%example.com%',
             ('emails', 'value', None): '%example.org%',
         }
-        self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPath(query, attr_paths)
         self.assertAttrPathParams(query, params_dict)
 
     def test_user_type_eq_and_not_email_type_eq(self):
@@ -209,7 +209,7 @@ class RFCExamples(TestAttrPathMixin, TestCase):
             ('userType', None, None): 'Employee',
             ('emails', 'type', None): 'work',
         }
-        self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPath(query, attr_paths)
         self.assertAttrPathParams(query, params_dict)
 
     def test_user_type_eq_and_not_email_type_eq_work_and_value_contains(self):
@@ -224,7 +224,7 @@ class RFCExamples(TestAttrPathMixin, TestCase):
             ('emails', 'type', None): 'work',
             ('emails', 'value', None): '%@example.com%',
         }
-        self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPath(query, attr_paths)
         self.assertAttrPathParams(query, params_dict)
 
     def test_emails_type_eq_work_value_contians_or_ims_type_eq_and_value_contians(self):
@@ -242,7 +242,7 @@ class RFCExamples(TestAttrPathMixin, TestCase):
             ('ims', 'type', None): 'xmpp',
             ('ims', 'value', None): '%@foo.com%',
         }
-        self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPath(query, attr_paths)
         self.assertAttrPathParams(query, params_dict)
 
 
@@ -262,8 +262,25 @@ class AzureQueries(TestAttrPathMixin, TestCase):
             ('emails', 'type', None): 'Primary',
             ('emails', 'value', None): '001750ca-8202-47cd-b553-c63f4f245940',
         }
-        self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPath(query, attr_paths)
         self.assertAttrPathParams(query, params_dict)
+
+
+class ComplexQueries(TestCase):
+    attr_map = {
+        ('emails', 'type', None): 'emails.type',
+        ('emails', 'value', None): 'emails.value',
+    }
+
+    def test_is_not_complex(self):
+        query = 'emails.value eq "001750ca-8202-47cd-b553-c63f4f245940"'
+        attr_paths = attr_paths_mod.AttrPath(query, self.attr_map)
+        self.assertFalse(attr_paths.is_complex)
+
+    def test_is_complex(self):
+        query = 'emails[type eq "Primary"].value eq "001750ca-8202-47cd-b553-c63f4f245940"'
+        attr_paths = attr_paths_mod.AttrPath(query, self.attr_map)
+        self.assertTrue(attr_paths.is_complex)
 
 
 class GroupQueries(TestAttrPathMixin, TestCase):
@@ -279,7 +296,7 @@ class GroupQueries(TestAttrPathMixin, TestCase):
         params_dict = {
             ('members', 'value', None): '337991',
         }
-        self.assertAttrPaths(query, attr_paths)
+        self.assertAttrPath(query, attr_paths)
         self.assertAttrPathParams(query, params_dict)
 
 
