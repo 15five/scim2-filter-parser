@@ -317,6 +317,19 @@ class GroupQueries(TestAttrPathMixin, TestCase):
         self.assertAttrPath(query, attr_paths)
         self.assertAttrPathParams(query, params_dict)
 
+    def test_filter_with_eq_pull_correct_values(self):
+        query = 'members[value eq "337991"] eq ""'
+        attr_paths = [
+            ('members', 'value', None),
+            ('members', None, None),
+        ]
+        params_dict = {
+            ('members', 'value', None): '337991',
+            ('members', None, None): None,
+        }
+        self.assertAttrPath(query, attr_paths)
+        self.assertAttrPathParams(query, params_dict)
+
 
 class CommandLine(TestCase):
 

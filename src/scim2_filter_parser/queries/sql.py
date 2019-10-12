@@ -16,7 +16,6 @@ class SQLQuery:
         self.joins = joins
         self.where_sql: str = None
         self.params_dict: dict = {}
-        self.params: list = []
 
         self.token_stream = None
         self.ast = None
@@ -29,8 +28,11 @@ class SQLQuery:
         self.ast = SCIMParser().parse(self.token_stream)
         self.transpiler = Transpiler(self.attr_map)
         self.where_sql, self.params_dict = self.transpiler.transpile(self.ast)
-        self.params = [self.params_dict[k] for k, _v in sorted(self.params_dict.items())
-                       if self.params_dict[k] is not None]
+
+    @property
+    def params(self):
+        return [self.params_dict[k] for k, _v in sorted(self.params_dict.items())
+                if self.params_dict[k] is not None]
 
     @property
     def sql(self) -> str:
