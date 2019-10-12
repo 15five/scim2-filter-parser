@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+0.3.3
+-----
+- Change params on AttrPath into property
+
 0.3.2
 -----
 - Add first_path method on AttrPath object
