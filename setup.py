@@ -33,8 +33,8 @@ setup(
         'console_scripts': [
             'sfp-lexer=scim2_filter_parser.lexer:main',
             'sfp-parser=scim2_filter_parser.parser:main',
-            'sfp-transpiler=scim2_filter_parser.transpiler:main',
-            'sfp-query=scim2_filter_parser.query:main',
+            'sfp-transpiler=scim2_filter_parser.transpilers.sql:main',
+            'sfp-query=scim2_filter_parser.queries.sql:main',
         ],
     },
     setup_requires=['pytest-runner'],
