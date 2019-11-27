@@ -1,10 +1,10 @@
-from io import StringIO
 import sys
+from io import StringIO
 from unittest import TestCase
 
+import scim2_filter_parser.transpilers.sql as transpile_sql
 from scim2_filter_parser.lexer import SCIMLexer
 from scim2_filter_parser.parser import SCIMParser
-import scim2_filter_parser.transpilers.sql as transpile_sql
 
 
 class RFCExamples(TestCase):

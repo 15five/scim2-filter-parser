@@ -1,7 +1,7 @@
-from io import StringIO
 import sqlite3
 import sys
 import unittest
+from io import StringIO
 
 import scim2_filter_parser.queries.sql as queries_sql
 

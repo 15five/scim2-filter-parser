@@ -97,7 +97,7 @@ The above query is transpiled to SQL below.
 
 ::
 
-    sfp-transpiler 'emails[type eq "work" and value co "@example.com"] or ims[type eq "xmpp" and value co "@foo.com"]'
+    sfp-transpiler-sql 'emails[type eq "work" and value co "@example.com"] or ims[type eq "xmpp" and value co "@foo.com"]'
 
     ((emails.type = {0}) AND (emails.value LIKE {1})) OR ((ims.type = {2}) AND (ims.value LIKE {3}))
     {0: 'work', 1: '%@example.com%', 2: 'xmpp', 3: '%@foo.com%'}
@@ -107,7 +107,15 @@ the rest of the SQL query.
 
 ::
 
-    sfp-query 'emails[type eq "work" and value co "@example.com"] or ims[type eq "xmpp" and value co "@foo.com"]'
+    sfp-transpiler-django 'emails[type eq "work" and value co "@example.com"] or ims[type eq "xmpp" and value co "@foo.com"]'
+
+    (Q(emails__type__iexact={a}) & Q(emails__value__icontains={b})) | (Q(ims__type__iexact={c}) & Q(ims__value__icontains={d}))
+    {'a': '"work"', 'b': '"@example.com"', 'c': '"xmpp"', 'd': '"@foo.com"'}
+
+
+::
+
+    sfp-query-sql 'emails[type eq "work" and value co "@example.com"] or ims[type eq "xmpp" and value co "@foo.com"]'
 
     >>> DO NOT USE THIS OUTPUT DIRECTLY
     >>> SQL INJECTION ATTACK RISK
@@ -118,8 +126,14 @@ the rest of the SQL query.
         LEFT JOIN schemas ON schemas.user_id = users.id
         WHERE ((emails.type = work) AND (emails.value LIKE %@example.com%)) OR ((ims.type = xmpp) AND (ims.value LIKE %@foo.com%));
 
-Please note that SFP does not build SQL queries with parameters pre-injected. 
-That would create a SQL injection attack vulnerability. Instead a ``Query`` 
+::
+
+    sfp-query-django 'emails[type eq "work" and value co "@example.com"] or ims[type eq "xmpp" and value co "@foo.com"]'
+
+    (Q(emails__type__iexact="work") & Q(emails__value__icontains="@example.com")) | (Q(ims__type__iexact="xmpp") & Q(ims__value__icontains="@foo.com"))
+
+Please note that SFP does not build SQL queries with parameters pre-injected.
+That would create a SQL injection attack vulnerability. Instead a ``Query``
 object is created and can be forced to display itself as seen above
 by ``print`` ing the query object.
 
