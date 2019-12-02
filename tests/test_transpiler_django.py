@@ -34,6 +34,11 @@ class TestRFCExamples(TestCase):
         django = Q(name__familyname__icontains="O'Malley")
         self.assert_q(scim, django)
 
+    def test_family_name_contains_case_insensitive(self):
+        scim = '''Name.FamilyName Co "O'Malley"'''
+        django = Q(name__familyname__icontains="O'Malley")
+        self.assert_q(scim, django)
+
     def test_username_startswith(self):
         scim = 'userName sw "J"'
         django = Q(username__istartswith="J")
@@ -148,7 +153,7 @@ class TestRFCExamples(TestCase):
 
 class TestUndefinedAttributes(TestCase):
     def assert_q(self, scim, attr_map, expected):
-        assert expected == get_query(scim, attr_map)
+        self.assertEqual(expected, get_query(scim, attr_map))
 
     def test_username_eq(self):
         scim = 'userName eq "bjensen"'
@@ -324,7 +329,7 @@ class TestAzureQueries(TestCase):
     }
 
     def assert_q(self, input, expected):
-        assert expected == get_query(input, self.attr_map)
+        self.assertEqual(expected, get_query(input, self.attr_map))
 
     def test_email_type_eq_primary_value_eq_uuid(self):
         scim = (

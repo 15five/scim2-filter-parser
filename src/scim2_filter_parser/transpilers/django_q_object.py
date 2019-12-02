@@ -17,6 +17,19 @@ def get_query(scim_query: str, attr_map: Mapping):
     return Transpiler(attr_map).transpile(tree)
 
 
+def attr_map_with_lower_keys(attr_map: Mapping) -> Mapping:
+    attr_map_lower_case = {}
+    for (a, b, c), v in attr_map.items():
+        if a:
+            a = a.lower()
+        if b:
+            b = b.lower()
+        if c:
+            c = c.lower()
+        attr_map_lower_case[(a, b, c)] = v
+    return attr_map_lower_case
+
+
 # noinspection PyPep8Naming
 class Transpiler(ast.NodeTransformer):
     """
@@ -25,7 +38,7 @@ class Transpiler(ast.NodeTransformer):
 
     def __init__(self, attr_map: Mapping, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.attr_map = attr_map
+        self.attr_map = attr_map_with_lower_keys(attr_map)
 
     def transpile(self, scim_ast) -> (str, dict):
         return self.visit(scim_ast)
@@ -101,7 +114,6 @@ class Transpiler(ast.NodeTransformer):
         # get second part of query
         # ie. visit -> 'emails.value'
         partial = self.visit(node.namespace)
-
         return full, partial
 
     def is_filter(self, node):
@@ -153,15 +165,14 @@ class Transpiler(ast.NodeTransformer):
         return op, value
 
     def visit_AttrPath(self, node):
-        attr_name_value = node.attr_name
-
+        attr_name_value = node.attr_name.lower()
         sub_attr_value = None
         if node.sub_attr:
-            sub_attr_value = node.sub_attr.value
+            sub_attr_value = node.sub_attr.value.lower()
 
         uri_value = None
         if node.uri:
-            uri_value = node.uri
+            uri_value = node.uri.lower()
 
         # Convert attr_name to another value based on map.
         # Otherwise, return None.
