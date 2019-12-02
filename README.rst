@@ -171,8 +171,7 @@ Django
 ------
 
 In your program, just call the method ``get_query(scim_query: str, attr_map: Mapping)``
-from scim2_filter_parser.transpilers.django_q_object. This method return a
-:ref:`Q object<https://docs.djangoproject.com/en/2.2/ref/models/querysets/#q-objects>`.
+from scim2_filter_parser.transpilers.django_q_object. This method return a `Q object <https://docs.djangoproject.com/en/2.2/ref/models/querysets/#q-objects>`_.
 
 Then You can apply a filter with this Q object, like ``User.objects.filter(get_query(scim_query, attr_map))``
 
