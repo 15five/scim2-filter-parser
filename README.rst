@@ -118,8 +118,8 @@ the rest of the SQL query.
         LEFT JOIN schemas ON schemas.user_id = users.id
         WHERE ((emails.type = work) AND (emails.value LIKE %@example.com%)) OR ((ims.type = xmpp) AND (ims.value LIKE %@foo.com%));
 
-Please note that SFP does not build SQL queries with parameters pre-injected. 
-That would create a SQL injection attack vulnerability. Instead a ``Query`` 
+Please note that SFP does not build SQL queries with parameters pre-injected.
+That would create a SQL injection attack vulnerability. Instead a ``SQLQuery``
 object is created and can be forced to display itself as seen above
 by ``print`` ing the query object.
 
@@ -128,7 +128,7 @@ Use
 
 Although command line shims are provided, the library is intended to be used
 programmatically. Users of the library should instantiate the
-``scim2_filter_parser.query.Query`` class with an attribute map and optionally
+``scim2_filter_parser.queries.SQLQuery`` class with an attribute map and optionally
 any joins necessary to make all required fields accessible in the query.
 
 For example, if user information is stored in the ``users`` table and email
@@ -147,7 +147,7 @@ and the joins might be defined as so::
         'LEFT JOIN emails ON emails.user_id = users.id',
     )
 
-    q = Query(filter, 'users', attr_map, joins)
+    q = SQLQuery(filter, 'users', attr_map, joins)
 
     q.sql # Will be equal to 'SELECT * FROM users ...
     q.params # Will be equal to the paramters specific to the filter query.
@@ -157,15 +157,24 @@ The attribute_map (``attr_map``) is a mapping of SCIM attribute, subattribute,
 and schema uri to a table field. You will need to customize this to your
 particular database schema.
 
-The ``Query.sql`` method returns SQL that can be used as the first
+The ``SQLQuery.sql`` method returns SQL that can be used as the first
 argument in a call to ``cursor.execute()`` with your favorite DB engine.
 If you are using a database that requires a replacement character other than '%s',
-then you can subclass the ``Query`` class and override the ``placeholder`` class
+then you can subclass the ``SQLQuery`` class and override the ``placeholder`` class
 level variable. See the query module and unit tests for an example of this subclassing
 with SQLite.
 
-The ``Query.params`` method returns a list of items that can be used as the
+The ``SQLQuery.params`` method returns a list of items that can be used as the
 second argument in a call to ``cursor.execute()``.
+
+Django
+------
+
+In your program, just call the method ``get_query(scim_query: str, attr_map: Mapping)``
+from scim2_filter_parser.transpilers.django_q_object. This method return a
+:ref:`Q object<https://docs.djangoproject.com/en/2.2/ref/models/querysets/#q-objects>`.
+
+Then You can apply a filter with this Q object, like ``User.objects.filter(get_query(scim_query, attr_map))``
 
 Speed
 -----
