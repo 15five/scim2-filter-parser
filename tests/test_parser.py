@@ -2,6 +2,7 @@ from io import StringIO
 import sys
 from unittest import TestCase
 
+from scim2_filter_parser import lexer
 from scim2_filter_parser import parser
 
 
@@ -33,6 +34,20 @@ class RegressionTestQueries(TestCase):
         self.assertEqual(result, expected)
 
 
+class BuggyQueries(TestCase):
+    def setUp(self):
+        self.lexer = lexer.SCIMLexer()
+        self.parser = parser.SCIMParser()
+
+    def test_no_quotes_around_comp_value(self):
+        query = 'userName eq example@example.com'
+
+        token_stream = self.lexer.tokenize(query)
+
+        with self.assertRaises(parser.SCIMParesrError):
+            self.parser.parse(token_stream)
+
+
 class CommandLine(TestCase):
     def setUp(self):
         self.original_stdout = sys.stdout
@@ -51,4 +66,3 @@ class CommandLine(TestCase):
             "         CompValue(value='bjensen')"
         ]
         self.assertEqual(result, expected)
-
