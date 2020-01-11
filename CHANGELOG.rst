@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+0.3.4
+-----
+- Update tox.ini and clean up linting errors
+
 0.3.3
 -----
 - Change params on AttrPath into property
