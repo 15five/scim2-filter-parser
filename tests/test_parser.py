@@ -44,7 +44,7 @@ class BuggyQueries(TestCase):
 
         token_stream = self.lexer.tokenize(query)
 
-        with self.assertRaises(parser.SCIMParesrError):
+        with self.assertRaises(parser.SCIMParserError):
             self.parser.parse(token_stream)
 
 
