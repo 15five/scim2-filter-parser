@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-from setuptools import setup, find_packages
 import os
 
+from setuptools import setup, find_packages
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -28,13 +28,14 @@ setup(
     package_dir={'': 'src'},
     install_requires=[
         'sly==0.3',
+        'django>=2.2.7',
     ],
     entry_points={
         'console_scripts': [
             'sfp-lexer=scim2_filter_parser.lexer:main',
             'sfp-parser=scim2_filter_parser.parser:main',
-            'sfp-transpiler=scim2_filter_parser.transpiler:main',
-            'sfp-query=scim2_filter_parser.query:main',
+            'sfp-transpiler=scim2_filter_parser.transpilers.sql:main',
+            'sfp-query=scim2_filter_parser.queries.sql:main',
         ],
     },
     setup_requires=['pytest-runner'],

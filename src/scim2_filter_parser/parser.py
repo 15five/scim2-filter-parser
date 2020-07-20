@@ -117,16 +117,16 @@ class SCIMParser(Parser):
 
     # FILTER    = attrExp / logExp / valuePath / *1"not" "(" FILTER ")"
     #                                           ; 0 or 1 "not"s
-    @_('attr_exp') # noqa F821
-    def filter(self, p):
+    @_('attr_exp')  # noqa F821
+    def filter(self, p):  # noqa F811
         return ast.Filter(p.attr_exp, False, None)
 
-    @_('log_exp') # noqa F821
+    @_('log_exp')  # noqa F821
     def filter(self, p):  # noqa F811
         return ast.Filter(p.log_exp, False, None)
 
-    @_('value_path') # noqa F821
-    def filter(self, p)  :# noqa F811
+    @_('value_path')  # noqa F821
+    def filter(self, p):  # noqa F811
         return ast.Filter(p.value_path, False, None)
 
     @_('LPAREN filter RPAREN', # noqa F821
