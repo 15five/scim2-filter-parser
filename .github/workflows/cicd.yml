@@ -1,0 +1,27 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    branches:
+    - master
+
+env:
+  PYTHONDONTWRITEBYTECODE: 1
+
+jobs:
+  container-job:
+    runs-on: ubuntu-latest
+
+    container:
+      image: python:3.8-alpine
+
+    steps:
+    - uses: actions/checkout@v2
+    - run: pip install tox-travis coverage codecov
+    - run: tox
+    - run: coverage run setup.py test
+    - run: coverage report -m
+    - run: codecov

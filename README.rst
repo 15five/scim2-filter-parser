@@ -13,6 +13,10 @@ SCIM 2.0 Filter Parser
   :target: https://scim2-filter-parser.readthedocs.io/en/latest/?badge=latest
   :alt: Documentation Status
 
+.. |github| image:: https://github.com/15five/scim2-filter-parser/workflows/CI%2FCD/badge.svg
+  :target: https://placeholder
+  :alt: CI/CD Status
+
 Description
 -----------
 
