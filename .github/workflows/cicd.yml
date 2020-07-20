@@ -12,7 +12,6 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
-      max-parallel: 3
       matrix:
         python-version: ["3.6", "3.7", "3.8"]
 
@@ -21,7 +20,7 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - run: pip install coverage codecov tox tox-gh-actions
+      - run: pip install tox tox-gh-actions
       - run: tox
 
   coverage:
@@ -34,6 +33,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - run: pip install coverage codecov
       - run: coverage run setup.py test
       - run: coverage report -m
       - uses: "codecov/codecov-action@v1"
