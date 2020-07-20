@@ -92,7 +92,7 @@ from . import ast
 from . import lexer
 
 
-class SCIMParesrError(Exception):
+class SCIMParserError(Exception):
     pass
 
 
@@ -117,16 +117,16 @@ class SCIMParser(Parser):
 
     # FILTER    = attrExp / logExp / valuePath / *1"not" "(" FILTER ")"
     #                                           ; 0 or 1 "not"s
-    @_('attr_exp') # noqa F821
-    def filter(self, p):
+    @_('attr_exp')  # noqa F821
+    def filter(self, p):  # noqa F811
         return ast.Filter(p.attr_exp, False, None)
 
-    @_('log_exp') # noqa F821
+    @_('log_exp')  # noqa F821
     def filter(self, p):  # noqa F811
         return ast.Filter(p.log_exp, False, None)
 
-    @_('value_path') # noqa F821
-    def filter(self, p)  :# noqa F811
+    @_('value_path')  # noqa F821
+    def filter(self, p):  # noqa F811
         return ast.Filter(p.value_path, False, None)
 
     @_('LPAREN filter RPAREN', # noqa F821
@@ -204,7 +204,7 @@ class SCIMParser(Parser):
         elif len(p) == 2 and isinstance(p[0], ast.Filter) and isinstance(p[1], ast.SubAttr):
             sub_attr = p[0].namespace.sub_attr
             if sub_attr is not None:
-                raise SCIMParesrError(f'Parsing error at: {p}')
+                raise SCIMParserError(f'Parsing error at: {p}')
 
             # For easier transpiling, convert complex queries like so:
             # emails[type eq "Primary"].value -> emails.value[type eq "Primary"]
@@ -228,7 +228,7 @@ class SCIMParser(Parser):
         return ast.SubAttr(p[0])
 
     def error(self, p):
-        raise SCIMParesrError(f'Parsing error at: {p}')
+        raise SCIMParserError(f'Parsing error at: {p}')
 
 
 def main(argv=None):
