@@ -1,36 +1,31 @@
 name: CI/CD
 
-on:
-  push:
-    branches:
-    - master
-  pull_request:
-    branches:
-    - master
+on: [push]
 
 env:
   PYTHONDONTWRITEBYTECODE: 1
 
 jobs:
-  tests::
-    name: "Python ${{ matrix.python-version }}"
+  tests:
+    name: Python ${{ matrix.python-version }}
 
     runs-on: ubuntu-latest
 
     strategy:
+      max-parallel: 3
       matrix:
         python-version: ["3.6", "3.7", "3.8"]
 
     steps:
       - uses: actions/checkout@v2
-      - uses: "actions/setup-python@v1"
+      - uses: actions/setup-python@v2
         with:
-          python-version: "${{ matrix.python-version }}"
+          python-version: ${{ matrix.python-version }}
       - run: pip install coverage codecov tox tox-gh-actions
-      - run: python -m tox
+      - run: tox
 
   coverage:
-    name: "Coverage"
+    name: Coverage
 
     runs-on: ubuntu-latest
 
