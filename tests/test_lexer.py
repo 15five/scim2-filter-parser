@@ -326,10 +326,10 @@ class TokenNotMistakenAsOperatorTestQueries(TestCase):
                 attrname = permuation + 'ing'  # Add any suffix to make token an attrname
                 attr_token, eq_token, comp_token = self.get_token_tuples(attrname + ' eq ""')
 
-                self.assertEquals(attr_token.type, 'ATTRNAME')
-                self.assertEquals(attr_token.value, attrname)
-                self.assertEquals(eq_token.type, 'EQ')
-                self.assertEquals(comp_token.type, 'COMP_VALUE')
+                self.assertEqual(attr_token.type, 'ATTRNAME')
+                self.assertEqual(attr_token.value, attrname)
+                self.assertEqual(eq_token.type, 'EQ')
+                self.assertEqual(comp_token.type, 'COMP_VALUE')
 
     def get_op_permutation(self, op_code):
         """
