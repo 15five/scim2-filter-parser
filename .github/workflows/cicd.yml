@@ -12,16 +12,35 @@ env:
   PYTHONDONTWRITEBYTECODE: 1
 
 jobs:
-  container-job:
+  tests::
+    name: "Python ${{ matrix.python-version }}"
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.6", "3.7", "3.8"]
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: "actions/setup-python@v1"
+        with:
+          python-version: "${{ matrix.python-version }}"
+      - run: pip install coverage codecov tox tox-gh-actions
+      - run: python -m tox
+
+  coverage:
+    name: "Coverage"
+
     runs-on: ubuntu-latest
 
     container:
       image: python:3.8-alpine
 
     steps:
-    - uses: actions/checkout@v2
-    - run: pip install tox-travis coverage codecov
-    - run: tox
-    - run: coverage run setup.py test
-    - run: coverage report -m
-    - run: codecov
+      - uses: actions/checkout@v2
+      - run: coverage run setup.py test
+      - run: coverage report -m
+      - uses: "codecov/codecov-action@v1"
+        with:
+          fail_ci_if_error: true
