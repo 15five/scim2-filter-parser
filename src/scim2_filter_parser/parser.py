@@ -92,7 +92,7 @@ from . import ast
 from . import lexer
 
 
-class SCIMParesrError(Exception):
+class SCIMParserError(Exception):
     pass
 
 
@@ -204,7 +204,7 @@ class SCIMParser(Parser):
         elif len(p) == 2 and isinstance(p[0], ast.Filter) and isinstance(p[1], ast.SubAttr):
             sub_attr = p[0].namespace.sub_attr
             if sub_attr is not None:
-                raise SCIMParesrError(f'Parsing error at: {p}')
+                raise SCIMParserError(f'Parsing error at: {p}')
 
             # For easier transpiling, convert complex queries like so:
             # emails[type eq "Primary"].value -> emails.value[type eq "Primary"]
@@ -228,7 +228,7 @@ class SCIMParser(Parser):
         return ast.SubAttr(p[0])
 
     def error(self, p):
-        raise SCIMParesrError(f'Parsing error at: {p}')
+        raise SCIMParserError(f'Parsing error at: {p}')
 
 
 def main(argv=None):
