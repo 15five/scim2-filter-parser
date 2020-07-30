@@ -36,6 +36,16 @@ class RFCExamples(TestCase):
         self.assertEqual(expected_sql, sql, query)
         self.assertEqual(expected_params, params, query)
 
+    def test_attr_paths_are_created(self):
+        query = 'userName eq "bjensen"'
+        tokens = self.lexer.tokenize(query)
+        ast = self.parser.parse(tokens)
+        self.transpiler.transpile(ast)
+
+        self.assertEqual(len(self.transpiler.attr_paths), 1)
+        for path in self.transpiler.attr_paths:
+            self.assertTrue(isinstance(path, transpile_sql.AttrPath))
+
     def test_username_eq(self):
         query = 'userName eq "bjensen"'
         sql = "username = {a}"

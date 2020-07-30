@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+0.3.5
+-----
+- Update the sql.Transpiler to collect namedtuples rather than tuples for attr paths
+
 0.3.4
 -----
 - Update tox.ini and clean up linting errors

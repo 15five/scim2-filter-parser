@@ -14,7 +14,7 @@ def long_description():
 
 setup(
     name='scim2-filter-parser',
-    version='0.3.4',
+    version='0.3.5',
     description='A customizable parser/transpiler for SCIM2.0 filters',
     url='https://github.com/15five/scim2-filter-parser',
     maintainer='Paul Logston',
