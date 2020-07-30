@@ -4,8 +4,11 @@ clause based on a SCIM filter.
 """
 import ast
 import string
+import collections
 
 from .. import ast as scim2ast
+
+AttrPath = collections.namedtuple('AttrPath', ['attr_name', 'sub_attr', 'uri'])
 
 
 class Transpiler(ast.NodeTransformer):
@@ -145,7 +148,7 @@ class Transpiler(ast.NodeTransformer):
 
         # Convert attr_name to another value based on map.
         # Otherwise, return None.
-        attr_path_tuple = (attr_name_value, sub_attr_value, uri_value)
+        attr_path_tuple = AttrPath(attr_name_value, sub_attr_value, uri_value)
         self.attr_paths.append(attr_path_tuple)
         return self.attr_map.get(attr_path_tuple)
 
