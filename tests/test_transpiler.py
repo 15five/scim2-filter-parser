@@ -368,6 +368,31 @@ class AzureQueries(TestCase):
         self.assertSQL(query, sql, params)
 
 
+class GitHubBugsQueries(TestCase):
+    attr_map = {
+        ('emails', 'type', None): 'emails.type',
+    }
+
+    def setUp(self):
+        self.lexer = SCIMLexer()
+        self.parser = SCIMParser()
+        self.transpiler = transpile_sql.Transpiler(self.attr_map)
+
+    def assertSQL(self, query, expected_sql, expected_params):
+        tokens = self.lexer.tokenize(query)
+        ast = self.parser.parse(tokens)
+        sql, params = self.transpiler.transpile(ast)
+
+        self.assertEqual(expected_sql, sql, query)
+        self.assertEqual(expected_params, params, query)
+
+    def test_g15_ne_op(self):
+        query = 'emails[type ne "work"]'
+        sql = "emails.type != {a}"
+        params = {'a': 'work'}
+        self.assertSQL(query, sql, params)
+
+
 class CommandLine(TestCase):
     def setUp(self):
         self.original_stdout = sys.stdout
