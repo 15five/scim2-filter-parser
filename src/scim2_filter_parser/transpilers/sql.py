@@ -15,6 +15,24 @@ class Transpiler(ast.NodeTransformer):
     """
     Transpile a SCIM AST into a SQL WHERE clause (not including the "WHERE" keyword)
     """
+    binary_op_by_scim_op = {
+        'eq': '=',
+        'ne': '!=',
+        'co': 'LIKE',
+        'sw': 'LIKE',
+        'ew': 'LIKE',
+        'pr': 'IS NOT NULL',
+        'gt': '>',
+        'ge': '>=',
+        'lt': '<',
+        'le': '<=',
+    }
+
+    matching_op_by_scim_op = {
+        'co': ('%', '%'),
+        'sw': ('', '%'),
+        'ew': ('%', ''),
+    }
 
     def __init__(self, attr_map, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -169,18 +187,7 @@ class Transpiler(ast.NodeTransformer):
     def lookup_op(self, node_value):
         op_code = node_value.lower()
 
-        sql = {
-            'eq': '=',
-            'ne': '!=',
-            'co': 'LIKE',
-            'sw': 'LIKE',
-            'ew': 'LIKE',
-            'pr': 'IS NOT NULL',
-            'gt': '>',
-            'ge': '>=',
-            'lt': '<',
-            'le': '<=',
-        }.get(op_code)
+        sql = self.binary_op_by_scim_op.get(op_code)
 
         if not sql:
             raise ValueError(f'Unknown SQL op {op_code}')
@@ -190,11 +197,7 @@ class Transpiler(ast.NodeTransformer):
     def lookup_like_matching(self, node_value):
         op_code = node_value.lower()
 
-        sql = {
-            'co': ('%', '%'),
-            'sw': ('', '%'),
-            'ew': ('%', ''),
-        }.get(op_code)
+        sql = self.matching_op_by_scim_op.get(op_code)
 
         if not sql:
             raise ValueError(f'Unknown SQL LIKE op {op_code}')
