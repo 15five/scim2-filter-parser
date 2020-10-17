@@ -1,4 +1,4 @@
-[tool.poetry]
+[project]
 name = "scim2-filter-parser"
 version = "0.3.5"
 description = "A customizable parser/transpiler for SCIM2.0 filters"
@@ -34,61 +34,24 @@ maintainers = [
     "Paul Logston <paul.logston@gmail.com>",
 ]
 
-[tool.poetry.dependencies]
+[dependencies]
 sly = "^0.4"
 
 django = { version = ">=2.2.7", optional = true }
 
-[tool.poetry.extras]
+[dev-dependencies]
+pytest-runner = "^5.2"
+pytest = "^6.1.1"
+
+[extras]
 django = ["django"]
 
-[tool.poetry.dev-dependencies]
-pytest-runner = ""
-pytest = ""
-
-[tool.poetry.scripts]
+[scripts]
 sfp-lexer= 'scim2_filter_parser.lexer:main'
 sfp-parser = 'scim2_filter_parser.parser:main'
 sfp-transpiler = 'scim2_filter_parser.transpilers.sql:main'
 sfp-query = 'scim2_filter_parser.queries.sql:main'
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
-
-[tox]
-isolated_build = true
-envlist = py36 py37 py38 flake8
-
-[gh-actions]
-python =
-    3.6: py36
-    3.7: py37
-    3.8: py38, flake8
-
-[testenv]
-setenv =
-    PYTHONDONTWRITEBYTECODE=1
-basepython =
-    py36: python3.6
-    py37: python3.7
-    py38: python3.8
-whitelist_externals = poetry
-commands =
-    poetry install -v
-    poetry run pytest tests/
-
-[testenv:flake8]
-basepython =
-    python3.8
-deps =
-    flake8
-commands =
-    flake8 src
-
-[flake8]
-exclude = __pycache__,.eggs/,.tox/
-max-line-length = 120
-max-complexity = 8
-ignore =
-    W391  # blank line at end of file
+requires = ["setuptools >= 40.6.0", "wheel"]
+build-backend = "setuptools.build_meta"
