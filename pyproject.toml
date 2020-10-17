@@ -58,11 +58,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tox]
 isolated_build = true
-envlist =
-    py36
-    py37
-    py38
-    flake8
+envlist = py36 py37 py38 flake8
 
 [gh-actions]
 python =
