@@ -28,8 +28,10 @@ setup(
     package_dir={'': 'src'},
     install_requires=[
         'sly==0.3',
-        'django>=2.2.7',
     ],
+    extras_require={
+        "django-query": ['django'],
+    },
     entry_points={
         'console_scripts': [
             'sfp-lexer=scim2_filter_parser.lexer:main',
@@ -39,7 +41,7 @@ setup(
         ],
     },
     setup_requires=['pytest-runner'],
-    tests_require=['pytest'],
+    tests_require=['pytest', 'django'],
     zip_safe=False,
     include_package_data=True,
     classifiers=[

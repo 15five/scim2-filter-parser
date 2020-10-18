@@ -124,6 +124,12 @@ That would create a SQL injection attack vulnerability. Instead a ``SQLQuery``
 object is created and can be forced to display itself as seen above
 by ``print`` ing the query object.
 
+Installation
+------------
+::
+
+    pip install scim2-filter-parser
+
 Use
 ---
 
@@ -171,10 +177,22 @@ second argument in a call to ``cursor.execute()``.
 Django
 ------
 
-In your program, just call the method ``get_query(scim_query: str, attr_map: Mapping)``
-from scim2_filter_parser.transpilers.django_q_object. This method return a `Q object <https://docs.djangoproject.com/en/2.2/ref/models/querysets/#q-objects>`_.
+If you would like to produce a `Django Q`_ object instead of a raw SQL query, you can pass
+a SCIM filter query and attribute map to the ``get_query`` function from the module
+``scim2_filter_parser.transpilers.django_q_object``. For example::
 
-Then You can apply a filter with this Q object, like ``User.objects.filter(get_query(scim_query, attr_map))``
+    get_query(scim_query: str, attr_map: Mapping)
+
+This Q object can then be passed to a Django filter query like so::
+
+    query = get_query(scim_query, attr_map)
+    User.objects.filter(query)
+
+Please note that you will need to install the Django Query extra like for this feature to be available::
+
+    pip install scim2-filter-parser[django-query]
+
+.. _`Django Q`: https://docs.djangoproject.com/en/3.1/topics/db/queries/#complex-lookups-with-q-objects
 
 Speed
 -----
