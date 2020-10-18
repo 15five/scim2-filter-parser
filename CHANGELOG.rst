@@ -1,6 +1,12 @@
 CHANGE LOG
 ==========
 
+0.3.7
+-----
+- Improve README
+- Bump to latest version of Sly (0.4)
+- Allow import of SQLQuery from queries package
+
 0.3.6
 -----
 - Move Django to install as an extra rather than by default

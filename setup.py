@@ -27,7 +27,7 @@ setup(
     packages=find_packages('src'),
     package_dir={'': 'src'},
     install_requires=[
-        'sly==0.3',
+        'sly==0.4',
     ],
     extras_require={
         "django-query": ['django'],

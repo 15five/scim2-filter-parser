@@ -142,6 +142,8 @@ For example, if user information is stored in the ``users`` table and email
 information is stored in a different table ``emails``, then the attribute map
 and the joins might be defined as so::
 
+    from scim2_filter_parser.queries import SQLQuery
+
     attr_map = {
         ('userName', None, None): 'users.username',
         ('name', 'familyName', None): 'users.family_name',
@@ -154,11 +156,20 @@ and the joins might be defined as so::
         'LEFT JOIN emails ON emails.user_id = users.id',
     )
 
-    q = SQLQuery(filter, 'users', attr_map, joins)
+    filter_ = 'name.familyName co "Simpson" or emails.value eq "lisa@example.com"'
 
-    q.sql # Will be equal to 'SELECT * FROM users ...
-    q.params # Will be equal to the paramters specific to the filter query.
+    q = SQLQuery(filter_, 'users', attr_map, joins)
 
+    q.sql # Will be...
+
+    SELECT DISTINCT users.*
+    FROM users
+    LEFT JOIN emails ON emails.user_id = users.id
+    WHERE (users.family_name LIKE %s) OR (emails.address = %s);
+
+    q.params # Will be...
+
+    ['%Simpson%', 'lisa@example.com']
 
 The attribute_map (``attr_map``) is a mapping of SCIM attribute, subattribute,
 and schema uri to a table field. You will need to customize this to your
