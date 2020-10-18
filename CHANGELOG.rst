@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+0.3.6
+-----
+- Move Django to install as an extra rather than by default
+
 0.3.5
 -----
 - Update the sql.Transpiler to collect namedtuples rather than tuples for attr paths
