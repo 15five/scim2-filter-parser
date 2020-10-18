@@ -218,8 +218,3 @@ For a longer query, SFP only took 273 microseconds.
     10000 loops, best of 3: 53.8 usec per loop
     ➜  scim2-filter-parser git:(master) ✗ python -m timeit -s "import speed_test" "speed_test.long()"
     1000 loops, best of 3: 273 usec per loop
-
----
-
-This project is still in its alpha stage of life and should be used accordingly.
-
