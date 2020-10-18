@@ -18,7 +18,7 @@ setup(
     description='A customizable parser/transpiler for SCIM2.0 filters',
     url='https://github.com/15five/scim2-filter-parser',
     maintainer='Paul Logston',
-    maintainer_email='paul@15five.com',
+    maintainer_email='paul.logston@gmail.com',
     author='Paul Logston',
     author_email='paul@15five.com',
     keywords='scim 2.0 filter',
