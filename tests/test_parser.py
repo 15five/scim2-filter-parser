@@ -47,6 +47,24 @@ class BuggyQueries(TestCase):
         with self.assertRaises(parser.SCIMParserError):
             self.parser.parse(token_stream)
 
+    def test_g17_1_log_exp_order(self):
+        query = 'displayName co "username"  or nickName co "username"  or userName co "username"'
+
+        tokens = self.lexer.tokenize(query)
+        self.parser.parse(tokens)  # Should not raise error
+
+    def test_g17_2_log_exp_order(self):
+        query = 'displayName co "username" and nickName co "username" and userName co "username"'
+
+        tokens = self.lexer.tokenize(query)
+        self.parser.parse(tokens)  # Should not raise error
+
+    def test_g17_3_log_exp_order(self):
+        query = 'displayName co "username" and nickName co "username"  or userName co "username"'
+
+        tokens = self.lexer.tokenize(query)
+        self.parser.parse(tokens)  # Should not raise error
+
 
 class CommandLine(TestCase):
     def setUp(self):

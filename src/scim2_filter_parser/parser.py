@@ -110,9 +110,8 @@ class SCIMParser(Parser):
     #       which takes precedence over "or"
     #   3.  Attribute operators
     precedence = (
-        ('nonassoc', OR),  # noqa F821
-        ('nonassoc', AND), # noqa F821
-        ('nonassoc', NOT), # noqa F821
+        ('left', OR, AND),  # noqa F821
+        ('right', NOT), # noqa F821
     )
 
     # FILTER    = attrExp / logExp / valuePath / *1"not" "(" FILTER ")"
