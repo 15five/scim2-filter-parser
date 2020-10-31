@@ -1,6 +1,11 @@
 CHANGE LOG
 ==========
 
+0.3.8
+-----
+- Add development speed notice
+- Fix Logical Expression precedence issue #17
+
 0.3.7
 -----
 - Improve README
