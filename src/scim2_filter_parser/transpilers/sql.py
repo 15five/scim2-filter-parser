@@ -180,9 +180,9 @@ class Transpiler(ast.NodeTransformer):
 
     def get_next_id(self):
         index = len(self.params)
-        if index >= len(string.ascii_lowercase):
+        if index >= len(string.ascii_letters):
             raise IndexError('Too many params in query. Can not store all of them.')
-        return string.ascii_lowercase[index]
+        return string.ascii_letters[index]
 
     def lookup_op(self, node_value):
         op_code = node_value.lower()
