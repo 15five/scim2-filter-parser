@@ -175,7 +175,7 @@ class SCIMLexer(Lexer):
 
     ignore = ' \t'
 
-    @_(r'\.[a-zA-Z][a-zA-Z0-9_-]*')
+    @_(r'\.[a-zA-Z$][a-zA-Z0-9_$-]*')
     def SUBATTR(self, t):
         t.value = t.value.lstrip('.')
         return t
@@ -200,7 +200,7 @@ class SCIMLexer(Lexer):
         t.value = t.value.rstrip(':')
         return t
 
-    ATTRNAME = r'[a-zA-Z][a-zA-Z0-9_-]*'
+    ATTRNAME = r'[a-zA-Z$][a-zA-Z0-9_$-]*'
 
     # Attribute Operators
     ATTRNAME['eq'] = EQ
