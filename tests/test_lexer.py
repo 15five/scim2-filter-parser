@@ -242,6 +242,36 @@ class RFCExamples(TestCase):
         ]
         self.assertTokens(query, expected)
 
+    def test_attribute_name_with_dollar_char(self):
+        query = 'manager.$ref eq "/v2/Users/a"'
+        expected = [
+            ('ATTRNAME', 'manager'),
+            ('SUBATTR', '$ref'),
+            ('EQ', 'eq'),
+            ('COMP_VALUE', '/v2/Users/a')
+        ]
+        self.assertTokens(query, expected)
+
+    def test_attribute_name_with_dollar_char_complex_query(self):
+        query = 'manager[$ref eq "/v2/Users/q" and value eq "q"] or userName eq "tom"'
+        expected = [
+            ('ATTRNAME', 'manager'),
+            ('LBRACKET', '['),
+            ('ATTRNAME', '$ref'),
+            ('EQ', 'eq'),
+            ('COMP_VALUE', '/v2/Users/q'),
+            ('AND', 'and'),
+            ('ATTRNAME', 'value'),
+            ('EQ', 'eq'),
+            ('COMP_VALUE', 'q'),
+            ('RBRACKET', ']'),
+            ('OR', 'or'),
+            ('ATTRNAME', 'userName'),
+            ('EQ', 'eq'),
+            ('COMP_VALUE', 'tom')
+        ]
+        self.assertTokens(query, expected)
+
 
 class RegressionTestQueries(TestCase):
     def setUp(self):
