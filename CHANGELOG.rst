@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+0.3.9
+-----
+- Allow the use of "$" in attribute names.  #25
+
 0.3.8
 -----
 - Add development speed notice
