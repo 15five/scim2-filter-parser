@@ -200,6 +200,10 @@ class SCIMLexer(Lexer):
         t.value = t.value.rstrip(':')
         return t
 
+    # "$" is not allowed as part of an ATTRNAME per RFC 7643. It is allowed
+    # here so that ATTRNAME can be used in tokenization of a complex query
+    # without further complicating the parsing logic with complex query
+    # specific tokens.
     ATTRNAME = r'[a-zA-Z$][a-zA-Z0-9_$-]*'
 
     # Attribute Operators
