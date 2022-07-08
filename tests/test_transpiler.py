@@ -14,10 +14,12 @@ class RFCExamples(TestCase):
         ('emails', 'type', None): 'emails.type',
         ('emails', 'value', None): 'emails.value',
         ('userName', None, None): 'username',
+        ('nickName', None, None): 'nickname',
         ('title', None, None): 'title',
         ('userType', None, None): 'usertype',
         ('schemas', None, None): 'schemas',
         ('userName', None, 'urn:ietf:params:scim:schemas:core:2.0:User'): 'username',
+        ('nickName', None, 'urn:ietf:params:scim:schemas:core:2.0:User'): 'nickname',
         ('meta', 'lastModified', None): 'meta.lastmodified',
         ('ims', 'type', None): 'ims.type',
         ('ims', 'value', None): 'ims.value',
@@ -46,10 +48,18 @@ class RFCExamples(TestCase):
         for path in self.transpiler.attr_paths:
             self.assertTrue(isinstance(path, transpile_sql.AttrPath))
 
+    # userName is always case-insensitive
+    # https://datatracker.ietf.org/doc/html/rfc7643#section-4.1.1
     def test_username_eq(self):
         query = 'userName eq "bjensen"'
-        sql = "username = {a}"
+        sql = "username ILIKE {a}"
         params = {'a': 'bjensen'}
+        self.assertSQL(query, sql, params)
+
+    def test_nickname_eq(self):
+        query = 'nickName eq "Bob"'
+        sql = "nickname = {a}"
+        params = {'a': 'Bob'}
         self.assertSQL(query, sql, params)
 
     def test_family_name_contains(self):
@@ -60,13 +70,25 @@ class RFCExamples(TestCase):
 
     def test_username_startswith(self):
         query = 'userName sw "J"'
-        sql = "username LIKE {a}"
+        sql = "username ILIKE {a}"
+        params = {'a': 'J%'}
+        self.assertSQL(query, sql, params)
+
+    def test_nickname_startswith(self):
+        query = 'nickName sw "J"'
+        sql = "nickname LIKE {a}"
         params = {'a': 'J%'}
         self.assertSQL(query, sql, params)
 
     def test_schema_username_startswith(self):
         query = 'urn:ietf:params:scim:schemas:core:2.0:User:userName sw "J"'
-        sql = "username LIKE {a}"
+        sql = "username ILIKE {a}"
+        params = {'a': 'J%'}
+        self.assertSQL(query, sql, params)
+
+    def test_schema_nickname_startswith(self):
+        query = 'urn:ietf:params:scim:schemas:core:2.0:User:nickName sw "J"'
+        sql = "nickname LIKE {a}"
         params = {'a': 'J%'}
         self.assertSQL(query, sql, params)
 
@@ -405,7 +427,7 @@ class CommandLine(TestCase):
         transpile_sql.main(['userName eq "bjensen"'])
         result = self.test_stdout.getvalue().strip().split('\n')
         expected = [
-            'SQL: username = {a}',
+            'SQL: username ILIKE {a}',
             "PARAMS: {'a': 'bjensen'}"
         ]
         self.assertEqual(result, expected)
