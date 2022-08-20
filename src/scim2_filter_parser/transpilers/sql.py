@@ -32,8 +32,7 @@ class Transpiler(ast.NodeTransformer):
         'co': ('%', '%'),
         'sw': ('', '%'),
         'ew': ('%', ''),
-   }
-
+    }
 
     def __init__(self, attr_map, *args, **kwargs):
         super().__init__(*args, **kwargs)
