@@ -1,5 +1,12 @@
 CHANGE LOG
 ==========
+0.4.0
+-----
+- Update userName to be case insensitive.  #31
+
+BREAKING CHANGE: This allows queries that did not match rows before to
+match rows now! 
+
 
 0.3.9
 -----

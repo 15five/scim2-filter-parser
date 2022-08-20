@@ -26,24 +26,14 @@ class Transpiler(ast.NodeTransformer):
         'ge': '>=',
         'lt': '<',
         'le': '<=',
-
-        # These are not valid SCIM comparison ops. They exist to make case
-        # insensitive logic simpler.
-        'ieq': 'ILIKE',
-        'ine': 'NOT ILIKE',
-        'ico': 'ILIKE',
-        'isw': 'ILIKE',
-        'iew': 'ILIKE',
     }
 
     matching_op_by_scim_op = {
         'co': ('%', '%'),
         'sw': ('', '%'),
         'ew': ('%', ''),
-        'ico': ('%', '%'),
-        'isw': ('', '%'),
-        'iew': ('%', ''),
-    }
+   }
+
 
     def __init__(self, attr_map, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -123,33 +113,38 @@ class Transpiler(ast.NodeTransformer):
         if isinstance(node.attr_path.attr_name, scim2ast.Filter):
             full, partial = self.visit_PartialAttrExpr(node.attr_path.attr_name)
             if full and partial:
-                value = self.visit_AttrExprValue(node.value, node.comp_value)
+                value = self.visit_AttrExprValue(node)
                 return f'({full} AND {partial} {value})'
             elif full:
                 return full
             elif partial:
-                value = self.visit_AttrExprValue(node.value, node.comp_value)
+                value = self.visit_AttrExprValue(node)
                 return f'{partial} {value}'
             else:
                 return None
         else:
+            # Case-insensitivity only needs to be checked in this branch
+            # because userName is currently the only attribute that can be case
+            # insensitive and userName can not be a nested part of a complex query (eg.
+            # emails.type in emails[type eq "Primary"]...).
+            # https://datatracker.ietf.org/doc/html/rfc7643#section-4.1.1
             attr = self.visit(node.attr_path)
             if attr is None:
                 return None
 
-            node_value = node.value
-            if node.case_insensitive:
-                node_value = 'i' + node_value
+            value = self.visit_AttrExprValue(node)
 
-            value = self.visit_AttrExprValue(node_value, node.comp_value)
+            if node.case_insensitive:
+                return f'UPPER({attr}) {value}'
+
             return f'{attr} {value}'
 
-    def visit_AttrExprValue(self, node_value, node_comp_value):
-        op_sql = self.lookup_op(node_value)
+    def visit_AttrExprValue(self, node):
+        op_sql = self.lookup_op(node.value)
 
         item_id = self.get_next_id()
 
-        if not node_comp_value:
+        if not node.comp_value:
             self.params[item_id] = None
             return op_sql
 
@@ -158,14 +153,18 @@ class Transpiler(ast.NodeTransformer):
         # prep item_id to be a str replacement placeholder
         item_id_placeholder = '{' + item_id + '}'
 
-        if node_value.lower() in self.matching_op_by_scim_op.keys():
+        if node.value.lower() in self.matching_op_by_scim_op.keys():
             # Add appropriate % signs to values in LIKE clause
-            prefix, suffix = self.lookup_like_matching(node_value)
-            value = prefix + self.visit(node_comp_value) + suffix
+            prefix, suffix = self.lookup_like_matching(node.value)
+            value = prefix + self.visit(node.comp_value) + suffix
+
         else:
-            value = self.visit(node_comp_value)
+            value = self.visit(node.comp_value)
 
         self.params[item_id] = value
+
+        if node.case_insensitive:
+            return f'{op_sql} UPPER({item_id_placeholder})'
 
         return f'{op_sql} {item_id_placeholder}'
 
