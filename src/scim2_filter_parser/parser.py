@@ -88,8 +88,7 @@ See https://tools.ietf.org/html/rfc7644#section-3.4.2.2 for more details
 '''
 from sly import Parser
 
-from . import ast
-from . import lexer
+from . import ast, lexer
 
 
 class SCIMParserError(Exception):

@@ -3,8 +3,8 @@ The logic in this module builds a portion of a WHERE SQL
 clause based on a SCIM filter.
 """
 import ast
-import string
 import collections
+import string
 
 from .. import ast as scim2ast
 

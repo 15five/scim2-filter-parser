@@ -1,5 +1,11 @@
 CHANGE LOG
 ==========
+
+0.4.1
+-----
+- Migrate library to Poetry for development.  #32
+- Drop support for Python 3.6.
+
 0.4.0
 -----
 - Update userName to be case insensitive.  #31

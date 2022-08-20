@@ -7,4 +7,3 @@
 - If attr_map value contains a "." and doesn't start with the name of the main table in a Query object, add joins.
 - Ensure SQL injection attacks are not used if column names are foreign.
   Eg. userName co "paul" and SQLAttack;[type eq 'bad']
-

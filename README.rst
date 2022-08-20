@@ -130,6 +130,10 @@ Installation
 
     pip install scim2-filter-parser
 
+    # Or ...
+
+    pip install scim2-filter-parser[django-query]
+
 Use
 ---
 
@@ -225,3 +229,47 @@ Development Speed
 Since this project is relatively stable, time is only dedicated to it on
 Fridays. Thus if you issue a PR, bug, etc, please note that it may take a week
 before we get back to you. Thanks you for your patience.
+
+Development
+-----------
+
+This project uses Poetry to manage dependencies, etc. Thus to install the
+necessary tools when developing, run:
+
+::
+
+    poetry install -v --extras "django-query"
+
+Tests
+-----
+
+.. |tests| image:: https://github.com/15five/scim2-filter-parser/workflows/CI%2FCD/badge.svg
+    :target: https://github.com/15five/scim2-filter-parser/actions
+
+https://github.com/15five/scim2-filter-parser/actions
+
+Tests are typically run locally with `tox` (https://tox.wiki/). Tox will test
+all supported versions of Python.
+
+```
+tox
+```
+
+To run the test suite with a single version of Python (the version you created
+the virtualenv with), run:
+
+::
+
+    poetry run pytest tests/
+
+Coverage
+--------
+
+.. |coverage| image:: https://codecov.io/gh/15five/scim2-filter-parser/graph/badge.svg
+    :target: https://codecov.io/gh/15five/scim2-filter-parser
+
+https://codecov.io/gh/15five/scim2-filter-parser
+
+::
+
+    tox -e coverage
