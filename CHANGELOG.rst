@@ -1,6 +1,19 @@
 CHANGE LOG
 ==========
 
+0.4.1
+-----
+- Migrate library to Poetry for development.  #32
+- Drop support for Python 3.6.
+
+0.4.0
+-----
+- Update userName to be case insensitive.  #31
+
+BREAKING CHANGE: This allows queries that did not match rows before to
+match rows now! 
+
+
 0.3.9
 -----
 - Allow the use of "$" in attribute names.  #25

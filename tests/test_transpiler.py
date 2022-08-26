@@ -6,50 +6,70 @@ from scim2_filter_parser.lexer import SCIMLexer
 from scim2_filter_parser.parser import SCIMParser
 import scim2_filter_parser.transpilers.sql as transpile_sql
 
+class SetupHelper(TestCase):
+    attr_map = None
 
-class RFCExamples(TestCase):
+    def setUp(self):
+        self.lexer = SCIMLexer()
+        self.parser = SCIMParser()
+
+    def assertSQL(self, query, expected_sql, expected_params, attr_map=None):
+        tokens = self.lexer.tokenize(query)
+        ast = self.parser.parse(tokens)
+
+        if attr_map is None:
+            attr_map = self.attr_map
+
+        transpiler = transpile_sql.Transpiler(attr_map)
+
+        sql, params = transpiler.transpile(ast)
+
+        self.assertEqual(expected_sql, sql, query)
+        self.assertEqual(expected_params, params, query)
+
+
+class RFCExamples(SetupHelper, TestCase):
     attr_map = {
         ('name', 'familyName', None): 'name.familyname',
         ('emails', None, None): 'emails',
         ('emails', 'type', None): 'emails.type',
         ('emails', 'value', None): 'emails.value',
         ('userName', None, None): 'username',
+        ('nickName', None, None): 'nickname',
         ('title', None, None): 'title',
         ('userType', None, None): 'usertype',
         ('schemas', None, None): 'schemas',
         ('userName', None, 'urn:ietf:params:scim:schemas:core:2.0:User'): 'username',
+        ('nickName', None, 'urn:ietf:params:scim:schemas:core:2.0:User'): 'nickname',
         ('meta', 'lastModified', None): 'meta.lastmodified',
         ('ims', 'type', None): 'ims.type',
         ('ims', 'value', None): 'ims.value',
     }
 
-    def setUp(self):
-        self.lexer = SCIMLexer()
-        self.parser = SCIMParser()
-        self.transpiler = transpile_sql.Transpiler(self.attr_map)
-
-    def assertSQL(self, query, expected_sql, expected_params):
-        tokens = self.lexer.tokenize(query)
-        ast = self.parser.parse(tokens)
-        sql, params = self.transpiler.transpile(ast)
-
-        self.assertEqual(expected_sql, sql, query)
-        self.assertEqual(expected_params, params, query)
-
     def test_attr_paths_are_created(self):
         query = 'userName eq "bjensen"'
         tokens = self.lexer.tokenize(query)
         ast = self.parser.parse(tokens)
-        self.transpiler.transpile(ast)
 
-        self.assertEqual(len(self.transpiler.attr_paths), 1)
-        for path in self.transpiler.attr_paths:
+        transpiler = transpile_sql.Transpiler(self.attr_map)
+        transpiler.transpile(ast)
+
+        self.assertEqual(len(transpiler.attr_paths), 1)
+        for path in transpiler.attr_paths:
             self.assertTrue(isinstance(path, transpile_sql.AttrPath))
 
+    # userName is always case-insensitive
+    # https://datatracker.ietf.org/doc/html/rfc7643#section-4.1.1
     def test_username_eq(self):
         query = 'userName eq "bjensen"'
-        sql = "username = {a}"
+        sql = "UPPER(username) = UPPER({a})"
         params = {'a': 'bjensen'}
+        self.assertSQL(query, sql, params)
+
+    def test_nickname_eq(self):
+        query = 'nickName eq "Bob"'
+        sql = "nickname = {a}"
+        params = {'a': 'Bob'}
         self.assertSQL(query, sql, params)
 
     def test_family_name_contains(self):
@@ -60,13 +80,25 @@ class RFCExamples(TestCase):
 
     def test_username_startswith(self):
         query = 'userName sw "J"'
-        sql = "username LIKE {a}"
+        sql = "UPPER(username) LIKE UPPER({a})"
+        params = {'a': 'J%'}
+        self.assertSQL(query, sql, params)
+
+    def test_nickname_startswith(self):
+        query = 'nickName sw "J"'
+        sql = "nickname LIKE {a}"
         params = {'a': 'J%'}
         self.assertSQL(query, sql, params)
 
     def test_schema_username_startswith(self):
         query = 'urn:ietf:params:scim:schemas:core:2.0:User:userName sw "J"'
-        sql = "username LIKE {a}"
+        sql = "UPPER(username) LIKE UPPER({a})"
+        params = {'a': 'J%'}
+        self.assertSQL(query, sql, params)
+
+    def test_schema_nickname_startswith(self):
+        query = 'urn:ietf:params:scim:schemas:core:2.0:User:nickName sw "J"'
+        sql = "nickname LIKE {a}"
         params = {'a': 'J%'}
         self.assertSQL(query, sql, params)
 
@@ -149,27 +181,35 @@ class RFCExamples(TestCase):
         params = {'a': 'work', 'b': '%@example.com%', 'c': 'xmpp', 'd': '%@foo.com%'}
         self.assertSQL(query, sql, params)
 
+    def test_username_with_more_complex_query(self):
+        query = (
+            'emails[type eq "work" and value co "@example.com"] or '
+            'ims[type eq "xmpp" and value co "@foo.com"] or '
+            'userName eq "bjensen"'
+        )
+        sql = (
+            '(((emails.type = {a}) AND (emails.value LIKE {b})) OR '
+            '((ims.type = {c}) AND (ims.value LIKE {d}))) OR '
+            '(UPPER(username) = UPPER({e}))'
+        )
+        params = {
+            'a': 'work',
+            'b': '%@example.com%',
+            'c': 'xmpp',
+            'd': '%@foo.com%',
+            'e': 'bjensen',
+        }
+        self.assertSQL(query, sql, params)
 
-class UndefinedAttributes(TestCase):
 
-    def setUp(self):
-        self.lexer = SCIMLexer()
-        self.parser = SCIMParser()
-
-    def assertSQL(self, query, attr_map, expected_sql, expected_params):
-        tokens = self.lexer.tokenize(query)
-        ast = self.parser.parse(tokens)
-        sql, params = transpile_sql.Transpiler(attr_map).transpile(ast)
-
-        self.assertEqual(expected_sql, sql, query)
-        self.assertEqual(expected_params, params, query)
+class UndefinedAttributes(SetupHelper, TestCase):
 
     def test_username_eq(self):
         query = 'userName eq "bjensen"'
         sql = None
         params = {}
         attr_map = {}
-        self.assertSQL(query, attr_map, sql, params)
+        self.assertSQL(query, sql, params, attr_map)
 
     def test_title_has_value_and_user_type_eq_1(self):
         query = 'title pr and userType eq "Employee"'
@@ -178,7 +218,7 @@ class UndefinedAttributes(TestCase):
         attr_map = {
             ('title', None, None): 'title',
         }
-        self.assertSQL(query, attr_map, sql, params)
+        self.assertSQL(query, sql, params, attr_map)
 
     def test_title_has_value_and_user_type_eq_2(self):
         query = 'title pr and userType eq "Employee"'
@@ -187,14 +227,14 @@ class UndefinedAttributes(TestCase):
         attr_map = {
             ('userType', None, None): 'usertype',
         }
-        self.assertSQL(query, attr_map, sql, params)
+        self.assertSQL(query, sql, params, attr_map)
 
     def test_schemas_eq(self):
         query = 'schemas eq "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User"'
         sql = None
         params = {}
         attr_map = {}
-        self.assertSQL(query, attr_map, sql, params)
+        self.assertSQL(query, sql, params, attr_map)
 
     def test_user_type_eq_and_email_contains_or_email_contains(self):
         query = 'userType eq "Employee" and (emails co "example.com" or emails.value co "example.org")'
@@ -205,7 +245,7 @@ class UndefinedAttributes(TestCase):
             ('emails', None, None): 'emails',
             ('emails', 'value', None): 'emails.value',
         }
-        self.assertSQL(query, attr_map, sql, params)
+        self.assertSQL(query, sql, params, attr_map)
 
     def test_user_type_ne_and_not_email_contains_or_email_contains(self):
         query = 'userType ne "Employee" and not (emails co "example.com" or emails.value co "example.org")'
@@ -216,7 +256,7 @@ class UndefinedAttributes(TestCase):
             ('emails', None, None): 'emails',
             ('emails', 'value', None): 'emails.value',
         }
-        self.assertSQL(query, attr_map, sql, params)
+        self.assertSQL(query, sql, params, attr_map)
 
     def test_user_type_eq_and_not_email_type_eq_1(self):
         query = 'userType eq "Employee" and (emails.type eq "work")'
@@ -225,7 +265,7 @@ class UndefinedAttributes(TestCase):
         attr_map = {
             ('userType', None, None): 'usertype',
         }
-        self.assertSQL(query, attr_map, sql, params)
+        self.assertSQL(query, sql, params, attr_map)
 
     def test_user_type_eq_and_not_email_type_eq_2(self):
         query = 'userType eq "Employee" and (emails.type eq "work")'
@@ -234,7 +274,7 @@ class UndefinedAttributes(TestCase):
         attr_map = {
             ('emails', 'type', None): 'emails.type',
         }
-        self.assertSQL(query, attr_map, sql, params)
+        self.assertSQL(query, sql, params, attr_map)
 
     def test_user_type_eq_and_not_email_type_eq_work_and_value_contains_1(self):
         query = 'userType eq "Employee" and emails[type eq "work" and value co "@example.com"]'
@@ -243,7 +283,7 @@ class UndefinedAttributes(TestCase):
         attr_map = {
             ('userType', None, None): 'usertype',
         }
-        self.assertSQL(query, attr_map, sql, params)
+        self.assertSQL(query, sql, params, attr_map)
 
     def test_user_type_eq_and_not_email_type_eq_work_and_value_contains_2(self):
         query = 'userType eq "Employee" and emails[type eq "work" and value co "@example.com"]'
@@ -252,7 +292,7 @@ class UndefinedAttributes(TestCase):
         attr_map = {
             ('emails', 'type', None): 'emails.type',
         }
-        self.assertSQL(query, attr_map, sql, params)
+        self.assertSQL(query, sql, params, attr_map)
 
     def test_user_type_eq_and_not_email_type_eq_work_and_value_contains_3(self):
         query = 'userType eq "Employee" and emails[type eq "work" and value co "@example.com"]'
@@ -262,7 +302,7 @@ class UndefinedAttributes(TestCase):
             ('emails', 'type', None): 'emails.type',
             ('emails', 'value', None): 'emails.value',
         }
-        self.assertSQL(query, attr_map, sql, params)
+        self.assertSQL(query, sql, params, attr_map)
 
     def test_emails_type_eq_work_value_contians_or_ims_type_eq_and_value_contians_1(self):
         query = ('emails[type eq "work" and value co "@example.com"] or '
@@ -273,7 +313,7 @@ class UndefinedAttributes(TestCase):
             ('emails', 'value', None): 'emails.value',
             ('ims', 'type', None): 'ims.type',
         }
-        self.assertSQL(query, attr_map, sql, params)
+        self.assertSQL(query, sql, params, attr_map)
 
     def test_emails_type_eq_work_value_contians_or_ims_type_eq_and_value_contians_2(self):
         query = ('emails[type eq "work" and value co "@example.com"] or '
@@ -285,7 +325,7 @@ class UndefinedAttributes(TestCase):
             ('ims', 'type', None): 'ims.type',
             ('ims', 'value', None): 'ims.value',
         }
-        self.assertSQL(query, attr_map, sql, params)
+        self.assertSQL(query, sql, params, attr_map)
 
     def test_emails_type_eq_work_value_contians_or_ims_type_eq_and_value_contians_3(self):
         query = ('emails[type eq "work" and value co "@example.com"] or '
@@ -297,7 +337,7 @@ class UndefinedAttributes(TestCase):
             ('emails', 'type', None): 'emails.type',
             ('ims', 'type', None): 'ims.type',
         }
-        self.assertSQL(query, attr_map, sql, params)
+        self.assertSQL(query, sql, params, attr_map)
 
     def test_emails_type_eq_work_value_contians_or_ims_type_eq_and_value_contians_4(self):
         query = ('emails[type eq "work" and value co "@example.com"] or '
@@ -308,7 +348,7 @@ class UndefinedAttributes(TestCase):
             ('emails', 'type', None): 'emails.type',
             ('ims', 'value', None): 'ims.value',
         }
-        self.assertSQL(query, attr_map, sql, params)
+        self.assertSQL(query, sql, params, attr_map)
 
     def test_email_type_eq_primary_value_eq_uuid_1(self):
         query = 'emails[type eq "Primary"].value eq "001750ca-8202-47cd-b553-c63f4f245940"'
@@ -317,7 +357,7 @@ class UndefinedAttributes(TestCase):
         attr_map = {
             ('emails', 'value', None): 'emails.value',
         }
-        self.assertSQL(query, attr_map, sql, params)
+        self.assertSQL(query, sql, params, attr_map)
 
     def test_email_type_eq_primary_value_eq_uuid_2(self):
         query = 'emails[type eq "Primary"].value eq "001750ca-8202-47cd-b553-c63f4f245940"'
@@ -326,28 +366,15 @@ class UndefinedAttributes(TestCase):
         attr_map = {
             ('emails', 'type', None): 'emails.type',
         }
-        self.assertSQL(query, attr_map, sql, params)
+        self.assertSQL(query, sql, params, attr_map)
 
 
-class AzureQueries(TestCase):
+class AzureQueries(SetupHelper, TestCase):
     attr_map = {
         ('emails', 'type', None): 'emails.type',
         ('emails', 'value', None): 'emails.value',
         ('externalId', None, None): 'externalid',
     }
-
-    def setUp(self):
-        self.lexer = SCIMLexer()
-        self.parser = SCIMParser()
-        self.transpiler = transpile_sql.Transpiler(self.attr_map)
-
-    def assertSQL(self, query, expected_sql, expected_params):
-        tokens = self.lexer.tokenize(query)
-        ast = self.parser.parse(tokens)
-        sql, params = self.transpiler.transpile(ast)
-
-        self.assertEqual(expected_sql, sql, query)
-        self.assertEqual(expected_params, params, query)
 
     def test_email_type_eq_primary_value_eq_uuid(self):
         query = 'emails[type eq "Primary"].value eq "001750ca-8202-47cd-b553-c63f4f245940"'
@@ -368,23 +395,10 @@ class AzureQueries(TestCase):
         self.assertSQL(query, sql, params)
 
 
-class GitHubBugsQueries(TestCase):
+class GitHubBugsQueries(SetupHelper, TestCase):
     attr_map = {
         ('emails', 'type', None): 'emails.type',
     }
-
-    def setUp(self):
-        self.lexer = SCIMLexer()
-        self.parser = SCIMParser()
-        self.transpiler = transpile_sql.Transpiler(self.attr_map)
-
-    def assertSQL(self, query, expected_sql, expected_params):
-        tokens = self.lexer.tokenize(query)
-        ast = self.parser.parse(tokens)
-        sql, params = self.transpiler.transpile(ast)
-
-        self.assertEqual(expected_sql, sql, query)
-        self.assertEqual(expected_params, params, query)
 
     def test_g15_ne_op(self):
         query = 'emails[type ne "work"]'
@@ -405,7 +419,7 @@ class CommandLine(TestCase):
         transpile_sql.main(['userName eq "bjensen"'])
         result = self.test_stdout.getvalue().strip().split('\n')
         expected = [
-            'SQL: username = {a}',
+            'SQL: UPPER(username) = UPPER({a})',
             "PARAMS: {'a': 'bjensen'}"
         ]
         self.assertEqual(result, expected)

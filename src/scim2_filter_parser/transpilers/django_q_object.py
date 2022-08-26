@@ -4,7 +4,7 @@ The logic in this module builds a Django Q object from an SCIM filter.
 import ast
 from typing import Mapping
 
-try:
+try:  # noqa: I003
     from django.db.models import Q
 except ImportError:
     import warnings
@@ -23,9 +23,9 @@ except ImportError:
         def __invert__(self):
             return self
 
-from scim2_filter_parser import ast as scim2ast
-from scim2_filter_parser.lexer import SCIMLexer
-from scim2_filter_parser.parser import SCIMParser
+from scim2_filter_parser import ast as scim2ast  # noqa: I001
+from scim2_filter_parser.lexer import SCIMLexer  # noqa: I001
+from scim2_filter_parser.parser import SCIMParser  # noqa: I001
 
 
 def get_query(scim_query: str, attr_map: Mapping):
@@ -139,13 +139,13 @@ class Transpiler(ast.NodeTransformer):
             partial = partial.replace(".", "__")
         if full and partial:
             # Specific to Azure
-            op, value = self.visit_AttrExprValue(node.value, node.comp_value)
+            op, value = self.visit_AttrExprValue(node)
             key = partial + "__" + op
             return full & Q(**{key: value})
         elif full:
             return full
         elif partial:
-            op, value = self.visit_AttrExprValue(node.value, node.comp_value)
+            op, value = self.visit_AttrExprValue(node)
             key = partial + "__" + op
             return Q(**{key: value})
         else:
@@ -159,20 +159,20 @@ class Transpiler(ast.NodeTransformer):
             return None
         if "." in attr:
             attr = attr.replace(".", "__")
-        op, value = self.visit_AttrExprValue(node.value, node.comp_value)
+        op, value = self.visit_AttrExprValue(node)
         key = attr + "__" + op
         query = Q(**{key: value})
         if node.value == "ne":
             query = ~query
         return query
 
-    def visit_AttrExprValue(self, node_value, node_comp_value):
-        op = self.lookup_op(node_value)
+    def visit_AttrExprValue(self, node):
+        op = self.lookup_op(node.value)
 
-        if node_comp_value:
+        if node.comp_value:
             # There is a comp_value, so visit node and build SQL.
             # prep item_id to be a str replacement placeholder
-            value = self.visit(node_comp_value)
+            value = self.visit(node.comp_value)
         else:
             value = None
 

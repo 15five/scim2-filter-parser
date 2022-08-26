@@ -95,6 +95,12 @@ class AttrPath(AST):
     sub_attr  : (SubAttr, type(None))  # noqa: E203
     uri       : (str, type(None))  # noqa: E203
 
+    @property
+    def case_insensitive(self):
+        # userName is always case-insensitive
+        # https://datatracker.ietf.org/doc/html/rfc7643#section-4.1.1
+        return self.attr_name == 'userName'
+
 
 class CompValue(AST):
     value : str  # noqa: E203
@@ -104,6 +110,10 @@ class AttrExpr(AST):
     value : str  # noqa: E203
     attr_path  : AttrPath  # noqa: E203
     comp_value : CompValue  # noqa: E203
+
+    @property
+    def case_insensitive(self):
+        return self.attr_path.case_insensitive
 
 
 # The following classes for visiting and rewriting the AST are taken
