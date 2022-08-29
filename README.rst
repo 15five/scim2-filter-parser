@@ -273,3 +273,16 @@ https://codecov.io/gh/15five/scim2-filter-parser
 ::
 
     tox -e coverage
+
+
+Deployment
+----------
+
+https://pypi.org/project/scim2-filter-parser/
+
+To deploy this package to PyPI, run:
+
+::
+
+    poetry build
+    poetry publish
