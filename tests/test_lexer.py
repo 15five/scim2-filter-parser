@@ -442,9 +442,9 @@ class CommandLine(TestCase):
         lexer.main(['userName eq "bjensen"'])
         result = self.test_stdout.getvalue().strip().split('\n')
         expected = [
-            "Token(type='ATTRNAME', value='userName', lineno=1, index=0)",
-            "Token(type='EQ', value='eq', lineno=1, index=9)",
-            "Token(type='COMP_VALUE', value='bjensen', lineno=1, index=12)",
+            "Token(type='ATTRNAME', value='userName', lineno=1, index=0, end=8)",
+            "Token(type='EQ', value='eq', lineno=1, index=9, end=11)",
+            "Token(type='COMP_VALUE', value='bjensen', lineno=1, index=12, end=21)",
         ]
         self.assertEqual(result, expected)
 

@@ -442,17 +442,15 @@ files = [
 
 [[package]]
 name = "sly"
-version = "0.4"
-description = "SLY - Sly Lex Yacc"
+version = "0.5"
+description = "\"SLY - Sly Lex Yacc\""
 category = "main"
 optional = false
 python-versions = "*"
 files = [
-    {file = "sly-0.4.tar.gz", hash = "sha256:e5f2266a231322cc17519fbc3a3ba1c6335fed5a9a55abe0e598a35aea0ac32a"},
+    {file = "sly-0.5-py3-none-any.whl", hash = "sha256:20485483259eec7f6ba85ff4d2e96a4e50c6621902667fc2695cc8bc2a3e5133"},
+    {file = "sly-0.5.tar.gz", hash = "sha256:251d42015e8507158aec2164f06035df4a82b0314ce6450f457d7125e7649024"},
 ]
-
-[package.extras]
-test = ["pytest", "regex"]
 
 [[package]]
 name = "sqlparse"
@@ -572,4 +570,4 @@ django-query = ["django"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8"
-content-hash = "01e13413a2caf3ba85b483cdc742851953f2365a2a56c97af50536a52ea88922"
+content-hash = "05c7a4b0258ed6f0c07a51d669175c0be5cad86e574b1d6e1611312cbb1cdd72"
