@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "scim2-filter-parser"
-version = "0.4.2"
+version = "0.5.0"
 description = "A customizable parser/transpiler for SCIM2.0 filters."
 license = "MIT"
 authors = ["Paul Logston <paul@15five.com>"]
@@ -36,7 +36,7 @@ sfp-query = 'scim2_filter_parser.queries.sql:main'
 
 [tool.poetry.dependencies]
 python = ">=3.8"
-sly = "==0.4"
+sly = "==0.5"
 
 django = { version = ">=3.2", optional = true }
 
