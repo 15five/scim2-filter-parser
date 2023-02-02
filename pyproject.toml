@@ -17,7 +17,6 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Natural Language :: English",
     "Operating System :: OS Independent",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
@@ -36,7 +35,7 @@ sfp-transpiler = 'scim2_filter_parser.transpilers.sql:main'
 sfp-query = 'scim2_filter_parser.queries.sql:main'
 
 [tool.poetry.dependencies]
-python = ">=3.7"
+python = ">=3.8"
 sly = "==0.4"
 
 django = { version = ">=3.2", optional = true }
