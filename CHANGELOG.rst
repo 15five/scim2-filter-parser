@@ -1,6 +1,11 @@
 CHANGE LOG
 ==========
 
+0.4.2
+-----
+- Drop support for Python 3.7.
+- Add support for Python 3.11.
+
 0.4.1
 -----
 - Migrate library to Poetry for development.  #32
@@ -11,7 +16,7 @@ CHANGE LOG
 - Update userName to be case insensitive.  #31
 
 BREAKING CHANGE: This allows queries that did not match rows before to
-match rows now! 
+match rows now!
 
 
 0.3.9
