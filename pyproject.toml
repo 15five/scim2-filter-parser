@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "scim2-filter-parser"
-version = "0.5.0"
+version = "0.5.1"
 description = "A customizable parser/transpiler for SCIM2.0 filters."
 license = "MIT"
 authors = ["Paul Logston <paul@15five.com>"]
@@ -21,6 +21,7 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Internet",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]

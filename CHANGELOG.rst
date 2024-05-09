@@ -1,6 +1,13 @@
 CHANGE LOG
 ==========
 
+0.5.1
+-----
+- Add support for Python 3.12
+
+0.5.0
+-----
+
 0.4.2
 -----
 - Drop support for Python 3.7.
