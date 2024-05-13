@@ -1,3 +1,37 @@
+[tool.ruff]
+# Version 3.8 is supported, so don't use syntax for newer versions
+target-version = "py38"
+
+[tool.ruff.lint]
+# Many other rulesets exist -- start with a simple set to get `flake8` parity
+select = [
+  "C4",    # flake8-comprehensions
+  "DJ",    # flake8-django
+  "DTZ",   # flake8-datetimez
+  "EXE",   # flake8-executable (files marked executable must have a shebang & vice versa)
+  "E",     # pycodestyle
+  "F",     # pyflakes
+  "G",     # flake8-logging-format
+  "I",     # isort
+  "ICN",   # flake8-import-conventions
+  "INT",   # flake8-gettext
+  "LOG",   # flake8-logging
+  "PIE",   # flake8-pie
+  "SLF",   # flake8-self
+  "T10",   # flake8-debugger
+  "TCH",   # flake8-type-checking
+  "YTT",   # flake8-2020
+
+  # Ensure that `noqa` lines actually are necessary!
+  "RUF100",
+]
+
+ignore = [
+  # Line length can largely just be handled by an autoformatter.
+  # Consider making `ruff format` part of CI!
+  "E501",
+]
+
 [tool.poetry]
 name = "scim2-filter-parser"
 version = "0.5.1"
@@ -45,14 +79,13 @@ django = { version = ">=3.2", optional = true }
 django-query = ['django']
 
 [tool.poetry.dev-dependencies]
-mock = "^4.0.2"
-tox = "^3.16.1"
-flake8 = "^3.8.3"
-toml = "^0.10.1"
-flake8-isort = "^3.0.0"
-pytest = ">=5.4.0"
 coverage = "^6.4.2"
+mock = "^4.0.2"
+pytest = ">=5.4.0"
 pytest-cov = "3.0.0"
+ruff = "^0.4.4"
+toml = "^0.10.1"
+tox = "^3.16.1"
 
 [tool.black]
 line-length = 100

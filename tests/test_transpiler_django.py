@@ -1,7 +1,6 @@
 from unittest import TestCase
 
 from django.db.models import Q
-
 from scim2_filter_parser.transpilers.django_q_object import get_query
 
 

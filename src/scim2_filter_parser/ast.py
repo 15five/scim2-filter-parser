@@ -75,25 +75,25 @@ class AST(object):
 
 
 class Filter(AST):
-    expr      : AST  # noqa: E203
-    negated   : bool  # noqa: E203
-    namespace : AST  # noqa: E203
+    expr      : AST
+    negated   : bool
+    namespace : AST
 
 
 class LogExpr(AST):
-    op    : str  # noqa: E203
-    expr1 : Filter  # noqa: E203
-    expr2 : Filter  # noqa: E203
+    op    : str
+    expr1 : Filter
+    expr2 : Filter
 
 
 class SubAttr(AST):
-    value : str  # noqa: E203
+    value : str
 
 
 class AttrPath(AST):
-    attr_name : str  # noqa: E203
-    sub_attr  : (SubAttr, type(None))  # noqa: E203
-    uri       : (str, type(None))  # noqa: E203
+    attr_name : str
+    sub_attr  : (SubAttr, type(None))
+    uri       : (str, type(None))
 
     @property
     def case_insensitive(self):
@@ -103,13 +103,13 @@ class AttrPath(AST):
 
 
 class CompValue(AST):
-    value : str  # noqa: E203
+    value : str
 
 
 class AttrExpr(AST):
-    value : str  # noqa: E203
-    attr_path  : AttrPath  # noqa: E203
-    comp_value : CompValue  # noqa: E203
+    value : str
+    attr_path  : AttrPath
+    comp_value : CompValue
 
     @property
     def case_insensitive(self):
@@ -176,7 +176,7 @@ class NodeVisitor(metaclass=NodeVisitMeta):
         This examines the node to see if it has `_fields`, is a list,
         or can be further traversed.
         '''
-        for field in getattr(node, '_fields'):
+        for field in node._fields:
             value = getattr(node, field, None)
             self.visit(value)
 
@@ -187,7 +187,7 @@ class NodeVisitor(metaclass=NodeVisitMeta):
         '''
         for key in vars(cls):
             if key.startswith('visit_'):
-                assert key[6:] in AST._nodes, f"{key} doesn't match any AST node"
+                assert key[6:] in AST._nodes, f"{key} doesn't match any AST node"  # noqa: SLF001
 
 
 def flatten(top):

@@ -116,7 +116,7 @@ class SCIMParser(Parser):
     # FILTER    = attrExp / logExp / valuePath / *1"not" "(" FILTER ")"
     #                                           ; 0 or 1 "not"s
     @_('attr_exp')  # noqa F821
-    def filter(self, p):  # noqa F811
+    def filter(self, p):
         return ast.Filter(p.attr_exp, False, None)
 
     @_('log_exp')  # noqa F821
