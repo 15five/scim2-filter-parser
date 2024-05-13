@@ -1,6 +1,6 @@
 import json
-from io import StringIO
 import sys
+from io import StringIO
 from unittest import TestCase
 
 from scim2_filter_parser import attr_paths as attr_paths_mod

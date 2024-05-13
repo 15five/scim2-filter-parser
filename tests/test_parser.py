@@ -1,9 +1,8 @@
-from io import StringIO
 import sys
+from io import StringIO
 from unittest import TestCase
 
-from scim2_filter_parser import lexer
-from scim2_filter_parser import parser
+from scim2_filter_parser import lexer, parser
 
 
 class RegressionTestQueries(TestCase):

@@ -138,7 +138,7 @@ See https://tools.ietf.org/html/rfc7644#section-3.4.2.2 for more details.
                         Table 5: Grouping Operators
 
 """
-# flake8: noqa: F821
+# ruff: noqa: F821
 from sly import Lexer
 
 

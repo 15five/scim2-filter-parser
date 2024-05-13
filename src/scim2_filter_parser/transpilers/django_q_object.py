@@ -4,7 +4,7 @@ The logic in this module builds a Django Q object from an SCIM filter.
 import ast
 from typing import Mapping
 
-try:  # noqa: I003
+try:
     from django.db.models import Q
 except ImportError:
     import warnings
@@ -23,9 +23,9 @@ except ImportError:
         def __invert__(self):
             return self
 
-from scim2_filter_parser import ast as scim2ast  # noqa: I001
-from scim2_filter_parser.lexer import SCIMLexer  # noqa: I001
-from scim2_filter_parser.parser import SCIMParser  # noqa: I001
+from scim2_filter_parser import ast as scim2ast
+from scim2_filter_parser.lexer import SCIMLexer
+from scim2_filter_parser.parser import SCIMParser
 
 
 def get_query(scim_query: str, attr_map: Mapping):
