@@ -113,16 +113,16 @@ class TestRFCExamples(TestCase):
     def test_user_type_eq_and_email_contains_or_email_contains(self):
         scim = 'userType eq "Employee" and (emails co "example.com" or emails.value co "example.org")'
         django = Q(usertype__iexact="Employee") & (
-                Q(emails__icontains="example.com")
-                | Q(emails__value__icontains="example.org")
+            Q(emails__icontains="example.com")
+            | Q(emails__value__icontains="example.org")
         )
         self.assert_q(scim, django)
 
     def test_user_type_ne_and_not_email_contains_or_email_contains(self):
         scim = 'userType ne "Employee" and not (emails co "example.com" or emails.value co "example.org")'
         django = ~Q(usertype__iexact="Employee") & ~(
-                Q(emails__icontains="example.com")
-                | Q(emails__value__icontains="example.org")
+            Q(emails__icontains="example.com")
+            | Q(emails__value__icontains="example.org")
         )
         self.assert_q(scim, django)
 
@@ -134,7 +134,7 @@ class TestRFCExamples(TestCase):
     def test_user_type_eq_and_not_email_type_eq_work_and_value_contains(self):
         scim = 'userType eq "Employee" and emails[type eq "work" and value co "@example.com"]'
         django = Q(usertype__iexact="Employee") & (
-                Q(emails__type__iexact="work") & Q(emails__value__icontains="@example.com")
+            Q(emails__type__iexact="work") & Q(emails__value__icontains="@example.com")
         )
         self.assert_q(scim, django)
 
@@ -144,8 +144,8 @@ class TestRFCExamples(TestCase):
             'ims[type eq "xmpp" and value co "@foo.com"]'
         )
         django = (
-                         Q(emails__type__iexact="work") & Q(emails__value__icontains="@example.com")
-                 ) | (Q(ims__type__iexact="xmpp") & Q(ims__value__icontains="@foo.com"))
+            Q(emails__type__iexact="work") & Q(emails__value__icontains="@example.com")
+        ) | (Q(ims__type__iexact="xmpp") & Q(ims__value__icontains="@foo.com"))
 
         self.assert_q(scim, django)
 
@@ -181,8 +181,8 @@ class TestUndefinedAttributes(TestCase):
     def test_user_type_eq_and_email_contains_or_email_contains(self):
         scim = 'userType eq "Employee" and (emails co "example.com" or emails.value co "example.org")'
         django = Q(usertype__iexact="Employee") & (
-                Q(emails__icontains="example.com")
-                | Q(emails__value__icontains="example.org")
+            Q(emails__icontains="example.com")
+            | Q(emails__value__icontains="example.org")
         )
         attr_map = {
             ("userType", None, None): "usertype",
@@ -194,8 +194,8 @@ class TestUndefinedAttributes(TestCase):
     def test_user_type_ne_and_not_email_contains_or_email_contains(self):
         scim = 'userType ne "Employee" and not (emails co "example.com" or emails.value co "example.org")'
         django = ~Q(usertype__iexact="Employee") & ~(
-                Q(emails__icontains="example.com")
-                | Q(emails__value__icontains="example.org")
+            Q(emails__icontains="example.com")
+            | Q(emails__value__icontains="example.org")
         )
         attr_map = {
             ("userType", None, None): "usertype",
@@ -240,7 +240,7 @@ class TestUndefinedAttributes(TestCase):
         self.assert_q(scim, attr_map, django)
 
     def test_emails_type_eq_work_value_contains_or_ims_type_eq_and_value_contains_1(
-            self,
+        self,
     ):
         scim = (
             'emails[type eq "work" and value co "@example.com"] or '
@@ -256,14 +256,14 @@ class TestUndefinedAttributes(TestCase):
         self.assert_q(scim, attr_map, django)
 
     def test_emails_type_eq_work_value_contains_or_ims_type_eq_and_value_contains_2(
-            self,
+        self,
     ):
         scim = (
             'emails[type eq "work" and value co "@example.com"] or '
             'ims[type eq "xmpp" and value co "@foo.com"]'
         )
         django = Q(emails__value__icontains="@example.com") | (
-                Q(ims__type__iexact="xmpp") & Q(ims__value__icontains="@foo.com")
+            Q(ims__type__iexact="xmpp") & Q(ims__value__icontains="@foo.com")
         )
         attr_map = {
             ("emails", "value", None): "emails.value",
@@ -273,15 +273,15 @@ class TestUndefinedAttributes(TestCase):
         self.assert_q(scim, attr_map, django)
 
     def test_emails_type_eq_work_value_contains_or_ims_type_eq_and_value_contains_3(
-            self,
+        self,
     ):
         scim = (
             'emails[type eq "work" and value co "@example.com"] or '
             'ims[type eq "xmpp" and value co "@foo.com"]'
         )
         django = (
-                         Q(emails__type__iexact="work") & Q(emails__value__icontains="@example.com")
-                 ) | Q(ims__type__iexact="xmpp")
+            Q(emails__type__iexact="work") & Q(emails__value__icontains="@example.com")
+        ) | Q(ims__type__iexact="xmpp")
         attr_map = {
             ("emails", "value", None): "emails.value",
             ("emails", "type", None): "emails.type",
@@ -290,7 +290,7 @@ class TestUndefinedAttributes(TestCase):
         self.assert_q(scim, attr_map, django)
 
     def test_emails_type_eq_work_value_contains_or_ims_type_eq_and_value_contains_4(
-            self,
+        self,
     ):
         scim = (
             'emails[type eq "work" and value co "@example.com"] or '

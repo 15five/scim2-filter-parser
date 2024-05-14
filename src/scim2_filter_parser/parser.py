@@ -1,4 +1,4 @@
-'''
+"""
 This file defines the parser class that is used to parse a given SCIM query.
 
 See https://tools.ietf.org/html/rfc7644#section-3.4.2.2 for more details
@@ -85,7 +85,8 @@ See https://tools.ietf.org/html/rfc7644#section-3.4.2.2 for more details
 
     Clients MAY query by schema or schema extensions by using a filter
     expression including the "schemas" attribute (as shown in Figure 2).
-'''
+"""
+
 from sly import Parser
 
 from . import ast, lexer
@@ -109,28 +110,30 @@ class SCIMParser(Parser):
     #       which takes precedence over "or"
     #   3.  Attribute operators
     precedence = (
-        ('left', OR, AND),  # noqa F821
-        ('right', NOT), # noqa F821
+        ("left", OR, AND),  # noqa: F821
+        ("right", NOT),  # noqa: F821
     )
 
     # FILTER    = attrExp / logExp / valuePath / *1"not" "(" FILTER ")"
     #                                           ; 0 or 1 "not"s
-    @_('attr_exp')  # noqa F821
+    @_("attr_exp")  # noqa: F821
     def filter(self, p):
         return ast.Filter(p.attr_exp, False, None)
 
-    @_('log_exp')  # noqa F821
-    def filter(self, p):  # noqa F811
+    @_("log_exp")  # noqa: F821
+    def filter(self, p):  # noqa: F811
         return ast.Filter(p.log_exp, False, None)
 
-    @_('value_path')  # noqa F821
-    def filter(self, p):  # noqa F811
+    @_("value_path")  # noqa: F821
+    def filter(self, p):  # noqa: F811
         return ast.Filter(p.value_path, False, None)
 
-    @_('LPAREN filter RPAREN', # noqa F821
-       'NOT LPAREN filter RPAREN')
-    def filter(self, p):  # noqa F811
-        negate = p[0].lower() == 'not'
+    @_(  # noqa: F821
+        "LPAREN filter RPAREN",
+        "NOT LPAREN filter RPAREN",
+    )
+    def filter(self, p):  # noqa: F811
+        negate = p[0].lower() == "not"
         return ast.Filter(p.filter, negate, None)
 
     # valuePath = attrPath "[" valFilter "]"
@@ -145,64 +148,76 @@ class SCIMParser(Parser):
     # the brackets. Thus we need to distribute the namespace to the leaf nodes
     # of the filter node. We will attach attr_path to the filter and use
     # it in the transpiler.
-    @_('attr_path LBRACKET filter RBRACKET') # noqa F821
+    @_("attr_path LBRACKET filter RBRACKET")  # noqa: F821
     def value_path(self, p):
         return ast.Filter(p.filter, False, p.attr_path)
 
     # attrExp   = (attrPath SP "pr") /
     #             (attrPath SP compareOp SP compValue)
-    @_('attr_path PR', # noqa F821
-       'attr_path EQ comp_value',
-       'attr_path NE comp_value',
-       'attr_path CO comp_value',
-       'attr_path SW comp_value',
-       'attr_path EW comp_value',
-       'attr_path GT comp_value',
-       'attr_path LT comp_value',
-       'attr_path GE comp_value',
-       'attr_path LE comp_value')
+    @_(  # noqa: F821
+        "attr_path PR",
+        "attr_path EQ comp_value",
+        "attr_path NE comp_value",
+        "attr_path CO comp_value",
+        "attr_path SW comp_value",
+        "attr_path EW comp_value",
+        "attr_path GT comp_value",
+        "attr_path LT comp_value",
+        "attr_path GE comp_value",
+        "attr_path LE comp_value",
+    )
     def attr_exp(self, p):
         comp_value = p.comp_value if len(p) == 3 else None
         return ast.AttrExpr(p[1], p.attr_path, comp_value)
 
     # logExp    = FILTER SP ("and" / "or") SP FILTER
-    @_('filter OR filter', # noqa F821
-       'filter AND filter')
+    @_(  # noqa: F821
+        "filter OR filter",
+        "filter AND filter",
+    )
     def log_exp(self, p):
         return ast.LogExpr(p[1], p.filter0, p.filter1)
 
     # compValue = false / null / true / number / string
     #            ; rules from JSON (RFC 7159)
-    @_('FALSE', # noqa F821
-       'NULL',
-       'TRUE',
-       'NUMBER',
-       'COMP_VALUE')
+    @_(  # noqa: F821
+        "FALSE",
+        "NULL",
+        "TRUE",
+        "NUMBER",
+        "COMP_VALUE",
+    )
     def comp_value(self, p):
         return ast.CompValue(p[0])
 
     # attrPath  = [URI ":"] ATTRNAME *1subAttr
     #             ; SCIM attribute name
     #             ; URI is SCIM "schema" URI
-    @_('ATTRNAME', # noqa F821
-       'ATTRNAME sub_attr',
-       'SCHEMA_URI ATTRNAME',
-       'SCHEMA_URI ATTRNAME sub_attr',
-       # Next clause is not in spec but allows us to handle things
-       # like 'members[value eq "6784"] eq ""' which are helpful for
-       # AttrPath parsing for PATCH calls.
-       'value_path',
-       # Not sure this last clause is in the ABNF spec
-       # but Azure/Microsoft uses it so let's be prepared.
-       'value_path sub_attr')
+    @_(  # noqa: F821
+        "ATTRNAME",
+        "ATTRNAME sub_attr",
+        "SCHEMA_URI ATTRNAME",
+        "SCHEMA_URI ATTRNAME sub_attr",
+        # Next clause is not in spec but allows us to handle things
+        # like 'members[value eq "6784"] eq ""' which are helpful for
+        # AttrPath parsing for PATCH calls.
+        "value_path",
+        # Not sure this last clause is in the ABNF spec
+        # but Azure/Microsoft uses it so let's be prepared.
+        "value_path sub_attr",
+    )
     def attr_path(self, p):
         if len(p) == 1:
             return ast.AttrPath(p[0], None, None)
 
-        elif len(p) == 2 and isinstance(p[0], ast.Filter) and isinstance(p[1], ast.SubAttr):
+        elif (
+            len(p) == 2
+            and isinstance(p[0], ast.Filter)
+            and isinstance(p[1], ast.SubAttr)
+        ):
             sub_attr = p[0].namespace.sub_attr
             if sub_attr is not None:
-                raise SCIMParserError(f'Parsing error at: {p}')
+                raise SCIMParserError(f"Parsing error at: {p}")
 
             # For easier transpiling, convert complex queries like so:
             # emails[type eq "Primary"].value -> emails.value[type eq "Primary"]
@@ -221,25 +236,25 @@ class SCIMParser(Parser):
 
     # subAttr   = "." ATTRNAME
     #             ; a sub-attribute of a complex attribute
-    @_('SUBATTR') # noqa F821
+    @_("SUBATTR")  # noqa: F821
     def sub_attr(self, p):
         return ast.SubAttr(p[0])
 
     def error(self, p):
-        raise SCIMParserError(f'Parsing error at: {p}')
+        raise SCIMParserError(f"Parsing error at: {p}")
 
 
 def main(argv=None):
-    '''
+    """
     Main program. Used for testing.
-    '''
+    """
     import argparse
     import sys
 
     argv = argv or sys.argv[1:]
 
-    parser = argparse.ArgumentParser('SCIM 2.0 Filter Parser Parser')
-    parser.add_argument('filter', help="""Eg. 'userName eq "bjensen"'""")
+    parser = argparse.ArgumentParser("SCIM 2.0 Filter Parser Parser")
+    parser.add_argument("filter", help="""Eg. 'userName eq "bjensen"'""")
     args = parser.parse_args(argv)
 
     token_stream = lexer.SCIMLexer().tokenize(args.filter)
@@ -247,9 +262,8 @@ def main(argv=None):
 
     # Output the resulting parse tree structure
     for depth, node in ast.flatten(ast_nodes):
-        print('    ' * depth, node)
+        print("    " * depth, node)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-

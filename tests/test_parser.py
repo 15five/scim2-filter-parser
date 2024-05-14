@@ -17,7 +17,7 @@ class RegressionTestQueries(TestCase):
 
     def test_command_line(self):
         parser.main(['members[value eq "6784"] eq ""'])
-        result = self.test_stdout.getvalue().strip().split('\n')
+        result = self.test_stdout.getvalue().strip().split("\n")
         expected = [
             "Filter(expr=AttrExpr, negated=False, namespace=None)",
             "     AttrExpr(value='eq', attr_path=AttrPath, comp_value=CompValue)",
@@ -39,7 +39,7 @@ class BuggyQueries(TestCase):
         self.parser = parser.SCIMParser()
 
     def test_no_quotes_around_comp_value(self):
-        query = 'userName eq example@example.com'
+        query = "userName eq example@example.com"
 
         token_stream = self.lexer.tokenize(query)
 
@@ -75,11 +75,11 @@ class CommandLine(TestCase):
 
     def test_command_line(self):
         parser.main(['userName eq "bjensen"'])
-        result = self.test_stdout.getvalue().strip().split('\n')
+        result = self.test_stdout.getvalue().strip().split("\n")
         expected = [
-            'Filter(expr=AttrExpr, negated=False, namespace=None)',
+            "Filter(expr=AttrExpr, negated=False, namespace=None)",
             "     AttrExpr(value='eq', attr_path=AttrPath, comp_value=CompValue)",
             "         AttrPath(attr_name='userName', sub_attr=None, uri=None)",
-            "         CompValue(value='bjensen')"
+            "         CompValue(value='bjensen')",
         ]
         self.assertEqual(result, expected)

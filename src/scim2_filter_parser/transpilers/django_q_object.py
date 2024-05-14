@@ -1,6 +1,7 @@
 """
 The logic in this module builds a Django Q object from an SCIM filter.
 """
+
 import ast
 from typing import Mapping
 
@@ -8,7 +9,10 @@ try:
     from django.db.models import Q
 except ImportError:
     import warnings
-    warnings.warn('Django not installed but Django Q Transpiler in use. Please install Django.')
+
+    warnings.warn(
+        "Django not installed but Django Q Transpiler in use. Please install Django."
+    )
 
     class Q:
         def __init__(self, *args, **kwargs):
@@ -22,6 +26,7 @@ except ImportError:
 
         def __invert__(self):
             return self
+
 
 from scim2_filter_parser import ast as scim2ast
 from scim2_filter_parser.lexer import SCIMLexer
