@@ -29,6 +29,7 @@ values of a complex multi-valued attribute to be selected::
 The classes in this module parse the overall PATH string for its parts so
 that they can be easily used in following code.
 """
+
 import json
 import string
 
@@ -41,6 +42,7 @@ class AttrPath:
     """
     This class depends on the SQL transpiler.
     """
+
     def __init__(self, filter_: str, attr_map: dict):
         """
         Perform parsing of path.
@@ -101,35 +103,35 @@ class AttrPath:
         return iter(self.transpiler.attr_paths)
 
     def __str__(self) -> str:
-        return json.dumps(self.transpiler.attr_paths, sort_keys=True, indent='    ')
+        return json.dumps(self.transpiler.attr_paths, sort_keys=True, indent="    ")
 
 
 def main(argv=None):
-    '''
+    """
     Main program. Used for testing.
-    '''
+    """
     import argparse
     import sys
 
     argv = argv or sys.argv[1:]
 
-    parser = argparse.ArgumentParser('SCIM 2.0 Filter Parser Transpiler')
-    parser.add_argument('filter', help="""Eg. 'userName eq "bjensen"'""")
+    parser = argparse.ArgumentParser("SCIM 2.0 Filter Parser Transpiler")
+    parser.add_argument("filter", help="""Eg. 'userName eq "bjensen"'""")
     args = parser.parse_args(argv)
 
     attr_map = {
-        ('name', 'familyname', None): 'name.familyname',
-        ('emails', None, None): 'emails',
-        ('emails', 'type', None): 'emails.type',
-        ('emails', 'value', None): 'emails.value',
-        ('userName', None, None): 'username',
-        ('title', None, None): 'title',
-        ('userType', None, None): 'usertype',
-        ('schemas', None, None): 'schemas',
-        ('userName', None, 'urn:ietf:params:scim:schemas:core:2.0:User'): 'username',
-        ('meta', 'lastModified', None): 'meta.lastmodified',
-        ('ims', 'type', None): 'ims.type',
-        ('ims', 'value', None): 'ims.value',
+        ("name", "familyname", None): "name.familyname",
+        ("emails", None, None): "emails",
+        ("emails", "type", None): "emails.type",
+        ("emails", "value", None): "emails.value",
+        ("userName", None, None): "username",
+        ("title", None, None): "title",
+        ("userType", None, None): "usertype",
+        ("schemas", None, None): "schemas",
+        ("userName", None, "urn:ietf:params:scim:schemas:core:2.0:User"): "username",
+        ("meta", "lastModified", None): "meta.lastmodified",
+        ("ims", "type", None): "ims.type",
+        ("ims", "value", None): "ims.value",
     }
 
     q = AttrPath(args.filter, attr_map)
@@ -137,5 +139,5 @@ def main(argv=None):
     print(q)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

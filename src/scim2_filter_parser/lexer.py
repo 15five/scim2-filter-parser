@@ -138,6 +138,7 @@ See https://tools.ietf.org/html/rfc7644#section-3.4.2.2 for more details.
                         Table 5: Grouping Operators
 
 """
+
 # ruff: noqa: F821
 from sly import Lexer
 
@@ -145,19 +146,28 @@ from sly import Lexer
 class SCIMLexer(Lexer):
     tokens = {
         # Attribute Operators
-        EQ, NE,
-        GT, GE, LT, LE,
-        CO, SW, EW, PR,
-
+        EQ,
+        NE,
+        GT,
+        GE,
+        LT,
+        LE,
+        CO,
+        SW,
+        EW,
+        PR,
         # Logical Operators
-        AND, OR, NOT,
-        FALSE, TRUE,
+        AND,
+        OR,
+        NOT,
+        FALSE,
+        TRUE,
         NULL,
-
         # Grouping Operators
-        LPAREN, RPAREN,
-        LBRACKET, RBRACKET,
-
+        LPAREN,
+        RPAREN,
+        LBRACKET,
+        RBRACKET,
         # Other
         NUMBER,
         COMP_VALUE,
@@ -173,113 +183,113 @@ class SCIMLexer(Lexer):
     #     which takes precedence over "or"
     # 3.  Attribute operators
 
-    ignore = ' \t'
+    ignore = " \t"
 
-    @_(r'\.[a-zA-Z$][a-zA-Z0-9_$-]*')
+    @_(r"\.[a-zA-Z$][a-zA-Z0-9_$-]*")
     def SUBATTR(self, t):
-        t.value = t.value.lstrip('.')
+        t.value = t.value.lstrip(".")
         return t
 
     # Grouping Operators
-    LPAREN = r'\('
-    RPAREN = r'\)'
-    LBRACKET = r'\['
-    RBRACKET = r'\]'
+    LPAREN = r"\("
+    RPAREN = r"\)"
+    LBRACKET = r"\["
+    RBRACKET = r"\]"
 
     # compValue literals
     # false / null / true / number / string
     # Rules from https://tools.ietf.org/html/rfc7159
-    FALSE = r'false'
-    TRUE = r'true'
-    NULL = r'null'
-    NUMBER = r'[0-9]' # only support integers at this time
+    FALSE = r"false"
+    TRUE = r"true"
+    NULL = r"null"
+    NUMBER = r"[0-9]"  # only support integers at this time
 
     # attrPath parts
-    @_(r'[a-zA-Z]+:[a-zA-Z0-9:\._-]+:')
+    @_(r"[a-zA-Z]+:[a-zA-Z0-9:\._-]+:")
     def SCHEMA_URI(self, t):
-        t.value = t.value.rstrip(':')
+        t.value = t.value.rstrip(":")
         return t
 
     # "$" is not allowed as part of an ATTRNAME per RFC 7643. It is allowed
     # here so that ATTRNAME can be used in tokenization of a complex query
     # without further complicating the parsing logic with complex query
     # specific tokens.
-    ATTRNAME = r'[a-zA-Z$][a-zA-Z0-9_$-]*'
+    ATTRNAME = r"[a-zA-Z$][a-zA-Z0-9_$-]*"
 
     # Attribute Operators
-    ATTRNAME['eq'] = EQ
-    ATTRNAME['Eq'] = EQ
-    ATTRNAME['eQ'] = EQ
-    ATTRNAME['EQ'] = EQ
+    ATTRNAME["eq"] = EQ
+    ATTRNAME["Eq"] = EQ
+    ATTRNAME["eQ"] = EQ
+    ATTRNAME["EQ"] = EQ
 
-    ATTRNAME['ne'] = NE
-    ATTRNAME['Ne'] = NE
-    ATTRNAME['nE'] = NE
-    ATTRNAME['NE'] = NE
+    ATTRNAME["ne"] = NE
+    ATTRNAME["Ne"] = NE
+    ATTRNAME["nE"] = NE
+    ATTRNAME["NE"] = NE
 
-    ATTRNAME['co'] = CO
-    ATTRNAME['Co'] = CO
-    ATTRNAME['cO'] = CO
-    ATTRNAME['CO'] = CO
+    ATTRNAME["co"] = CO
+    ATTRNAME["Co"] = CO
+    ATTRNAME["cO"] = CO
+    ATTRNAME["CO"] = CO
 
-    ATTRNAME['sw'] = SW
-    ATTRNAME['Sw'] = SW
-    ATTRNAME['sW'] = SW
-    ATTRNAME['SW'] = SW
+    ATTRNAME["sw"] = SW
+    ATTRNAME["Sw"] = SW
+    ATTRNAME["sW"] = SW
+    ATTRNAME["SW"] = SW
 
-    ATTRNAME['ew'] = EW
-    ATTRNAME['Ew'] = EW
-    ATTRNAME['eW'] = EW
-    ATTRNAME['EW'] = EW
+    ATTRNAME["ew"] = EW
+    ATTRNAME["Ew"] = EW
+    ATTRNAME["eW"] = EW
+    ATTRNAME["EW"] = EW
 
-    ATTRNAME['pr'] = PR
-    ATTRNAME['Pr'] = PR
-    ATTRNAME['pR'] = PR
-    ATTRNAME['PR'] = PR
+    ATTRNAME["pr"] = PR
+    ATTRNAME["Pr"] = PR
+    ATTRNAME["pR"] = PR
+    ATTRNAME["PR"] = PR
 
-    ATTRNAME['gt'] = GT
-    ATTRNAME['Gt'] = GT
-    ATTRNAME['gT'] = GT
-    ATTRNAME['GT'] = GT
+    ATTRNAME["gt"] = GT
+    ATTRNAME["Gt"] = GT
+    ATTRNAME["gT"] = GT
+    ATTRNAME["GT"] = GT
 
-    ATTRNAME['ge'] = GE
-    ATTRNAME['Ge'] = GE
-    ATTRNAME['gE'] = GE
-    ATTRNAME['GE'] = GE
+    ATTRNAME["ge"] = GE
+    ATTRNAME["Ge"] = GE
+    ATTRNAME["gE"] = GE
+    ATTRNAME["GE"] = GE
 
-    ATTRNAME['lt'] = LT
-    ATTRNAME['Lt'] = LT
-    ATTRNAME['lT'] = LT
-    ATTRNAME['LT'] = LT
+    ATTRNAME["lt"] = LT
+    ATTRNAME["Lt"] = LT
+    ATTRNAME["lT"] = LT
+    ATTRNAME["LT"] = LT
 
-    ATTRNAME['le'] = LE
-    ATTRNAME['Le'] = LE
-    ATTRNAME['lE'] = LE
-    ATTRNAME['LE'] = LE
+    ATTRNAME["le"] = LE
+    ATTRNAME["Le"] = LE
+    ATTRNAME["lE"] = LE
+    ATTRNAME["LE"] = LE
 
     # Logical Operators
-    ATTRNAME['and'] = AND
-    ATTRNAME['And'] = AND
-    ATTRNAME['aNd'] = AND
-    ATTRNAME['ANd'] = AND
-    ATTRNAME['anD'] = AND
-    ATTRNAME['AnD'] = AND
-    ATTRNAME['aND'] = AND
-    ATTRNAME['AND'] = AND
+    ATTRNAME["and"] = AND
+    ATTRNAME["And"] = AND
+    ATTRNAME["aNd"] = AND
+    ATTRNAME["ANd"] = AND
+    ATTRNAME["anD"] = AND
+    ATTRNAME["AnD"] = AND
+    ATTRNAME["aND"] = AND
+    ATTRNAME["AND"] = AND
 
-    ATTRNAME['or'] = OR
-    ATTRNAME['Or'] = OR
-    ATTRNAME['oR'] = OR
-    ATTRNAME['OR'] = OR
+    ATTRNAME["or"] = OR
+    ATTRNAME["Or"] = OR
+    ATTRNAME["oR"] = OR
+    ATTRNAME["OR"] = OR
 
-    ATTRNAME['not'] = NOT
-    ATTRNAME['Not'] = NOT
-    ATTRNAME['nOt'] = NOT
-    ATTRNAME['NOt'] = NOT
-    ATTRNAME['noT'] = NOT
-    ATTRNAME['NoT'] = NOT
-    ATTRNAME['nOT'] = NOT
-    ATTRNAME['NOT'] = NOT
+    ATTRNAME["not"] = NOT
+    ATTRNAME["Not"] = NOT
+    ATTRNAME["nOt"] = NOT
+    ATTRNAME["NOt"] = NOT
+    ATTRNAME["noT"] = NOT
+    ATTRNAME["NoT"] = NOT
+    ATTRNAME["nOT"] = NOT
+    ATTRNAME["NOT"] = NOT
 
     @_(r'"([^"]*)"')
     def COMP_VALUE(self, t):
@@ -291,16 +301,16 @@ class SCIMLexer(Lexer):
 
 
 def main(argv=None):
-    '''
+    """
     Main program. Used for testing.
-    '''
+    """
     import argparse
     import sys
 
     argv = argv or sys.argv[1:]
 
-    parser = argparse.ArgumentParser('SCIM 2.0 Filter Parser Lexer')
-    parser.add_argument('filter', help="""Eg. 'userName eq "bjensen"'""")
+    parser = argparse.ArgumentParser("SCIM 2.0 Filter Parser Lexer")
+    parser.add_argument("filter", help="""Eg. 'userName eq "bjensen"'""")
     args = parser.parse_args(argv)
 
     token_stream = SCIMLexer().tokenize(args.filter)
@@ -308,6 +318,5 @@ def main(argv=None):
         print(token)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-
