@@ -18,6 +18,7 @@ class TestRFCExamples(TestCase):
         ("meta", "lastModified", None): "meta.lastmodified",
         ("ims", "type", None): "ims.type",
         ("ims", "value", None): "ims.value",
+        ("active", None, None): "is_active",
     }
 
     def assert_q(self, input, expected):
@@ -55,12 +56,12 @@ class TestRFCExamples(TestCase):
 
     def test_username_eq_true(self):
         scim = 'userName eq "true"'
-        django = Q(username__iexact=True)
+        django = Q(username__exact=True)
         self.assert_q(scim, django)
 
     def test_username_eq_false(self):
         scim = 'userName eq "false"'
-        django = Q(username__iexact=False)
+        django = Q(username__exact=False)
         self.assert_q(scim, django)
 
     def test_schema_username_startswith(self):
@@ -147,6 +148,11 @@ class TestRFCExamples(TestCase):
             Q(emails__type__iexact="work") & Q(emails__value__icontains="@example.com")
         ) | (Q(ims__type__iexact="xmpp") & Q(ims__value__icontains="@foo.com"))
 
+        self.assert_q(scim, django)
+
+    def test_active_eq_true(self) -> None:
+        scim = 'active eq true'
+        django = Q(is_active__exact=True)
         self.assert_q(scim, django)
 
 
