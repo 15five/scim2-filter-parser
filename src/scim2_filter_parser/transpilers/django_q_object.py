@@ -172,8 +172,6 @@ class Transpiler(ast.NodeTransformer):
         return query
 
     def visit_AttrExprValue(self, node):
-        op = self.lookup_op(node.value)
-
         if node.comp_value:
             # There is a comp_value, so visit node and build SQL.
             # prep item_id to be a str replacement placeholder
@@ -181,6 +179,7 @@ class Transpiler(ast.NodeTransformer):
         else:
             value = None
 
+        op = self.lookup_op(node.value, value)
         if op == "isnull":  # __isnull=False
             value = False
 
@@ -213,7 +212,7 @@ class Transpiler(ast.NodeTransformer):
             return node.value
 
     @staticmethod
-    def lookup_op(node_value):
+    def lookup_op(node_value, comp_value):
         op_code = node_value.lower()
 
         op = {
@@ -231,5 +230,11 @@ class Transpiler(ast.NodeTransformer):
 
         if not op:
             raise ValueError(f"Unknown Django op {op_code}")
+
+        if isinstance(comp_value, bool) and op == 'iexact':
+            # Use "exact" for boolean values, as certain DB drivers (e.g., Postgres) will transpile
+            #  "<field> iexact true/false" to "UPPER(field::text) = UPPER(true/false), which fails.
+            #  UPPER requires a string.
+            return 'exact'
 
         return op or node_value
