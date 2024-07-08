@@ -231,10 +231,10 @@ class Transpiler(ast.NodeTransformer):
         if not op:
             raise ValueError(f"Unknown Django op {op_code}")
 
-        if isinstance(comp_value, bool) and op == 'iexact':
+        if isinstance(comp_value, bool) and op == "iexact":
             # Use "exact" for boolean values, as certain DB drivers (e.g., Postgres) will transpile
             #  "<field> iexact true/false" to "UPPER(field::text) = UPPER(true/false), which fails.
             #  UPPER requires a string.
-            return 'exact'
+            return "exact"
 
         return op or node_value
