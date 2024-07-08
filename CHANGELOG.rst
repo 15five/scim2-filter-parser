@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+0.6.0
+----
+- Use "exact" on equality checks against boolean values. #53
+
 0.5.1
 -----
 - Add support for Python 3.12
@@ -101,4 +105,3 @@ match rows now!
 -----
 
 - attr_map keys now control which SQL expressions are present in output of transpiler
-
