@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+0.7.0
+----
+- Use "exact" on equality checks against empty strings. #51
+
 0.6.0
 ----
 - Use "exact" on equality checks against boolean values. #53

@@ -354,3 +354,17 @@ class TestAzureQueries(TestCase):
         scim = 'emails.value eq "001750ca-8202-47cd-b553-c63f4f245940"'
         django = Q(emails__value__iexact="001750ca-8202-47cd-b553-c63f4f245940")
         self.assert_q(scim, django)
+
+
+class TestOracleQueries(TestCase):
+    attr_map = {
+        ("externalId", None, None): "externalid",
+    }
+
+    def assert_q(self, input, expected):
+        self.assertEqual(expected, get_query(input, self.attr_map))
+
+    def test_empty_string_equality_transpiles_to_exact(self):
+        scim = 'externalId eq ""'
+        django = Q(externalid__exact="")
+        self.assert_q(scim, django)
