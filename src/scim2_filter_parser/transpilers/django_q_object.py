@@ -233,16 +233,16 @@ class Transpiler(ast.NodeTransformer):
 
         if isinstance(comp_value, bool) and op == "iexact":
             # Use "exact" for boolean values, as certain DB drivers (e.g., Postgres) will transpile
-            #  "<field> iexact true/false" to "UPPER(field::text) = UPPER(true/false), which fails.
-            #  UPPER requires a string.
+            # "<field> iexact true/false" to "UPPER(field::text) = UPPER(true/false), which fails.
+            # UPPER requires a string.
             return "exact"
         if comp_value == "" and op == "iexact":
             # In Oracle iexact + empty string will never evaluate to true. I.e., TRIM(' ') != '' and
-            #  UPPER(TRIM('')) != UPPER(''). Furthermore, case-insensitive search against an empty
-            #  string has no added value over a case-sensitive search. Hence, whenever the SCIM
-            #  path is '<field> eq ""', rather than doing field__iexact='', we do field=''. The
-            #  oracle Django driver will then convert field='' into "field" IS NULL, which is the
-            #  correct way to do it in Oracle.
+            # UPPER(TRIM('')) != UPPER(''). Furthermore, case-insensitive search against an empty
+            # string has no added value over a case-sensitive search. Hence, whenever the SCIM
+            # path is '<field> eq ""', rather than doing field__iexact='', we do field=''. The
+            # oracle Django driver will then convert field='' into "field" IS NULL, which is the
+            # correct way to do it in Oracle.
             return "exact"
 
         return op or node_value
