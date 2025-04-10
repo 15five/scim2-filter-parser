@@ -72,7 +72,7 @@ sfp-query = 'scim2_filter_parser.queries.sql:main'
 python = ">=3.8"
 sly = "==0.5"
 
-django = { version = ">=3.2", optional = true }
+django = "4.2.20"
 
 [tool.poetry.extras]
 django-query = ['django']
