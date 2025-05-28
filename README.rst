@@ -21,7 +21,7 @@ SCIM 2.0 defines queries that look like this::
 
     'emails[type eq "work" and value co "@example.com"] or ims[type eq "xmpp" and value co "@foo.com"]'
 
-These can be hard to work with and covert into SQL to run against a database.
+These can be hard to work with and convert into SQL to run against a database.
 
 That's where SCIM 2.0 Filter Parser (SFP) can help.
 
