@@ -202,7 +202,7 @@ class SCIMLexer(Lexer):
     FALSE = r"false"
     TRUE = r"true"
     NULL = r"null"
-    NUMBER = r"[0-9]"  # only support integers at this time
+    NUMBER = r"[0-9]+"  # only support integers at this time
 
     # attrPath parts
     @_(r"[a-zA-Z]+:[a-zA-Z0-9:\._-]+:")
