@@ -78,7 +78,7 @@ django-query = ['django']
 [tool.poetry.dev-dependencies]
 coverage = "^6.4.2"
 mock = "^4.0.2"
-pytest = ">=5.4.0"
+pytest = ">=9.0.3"
 pytest-cov = "3.0.0"
 ruff = "^0.4.4"
 toml = "^0.10.1"
