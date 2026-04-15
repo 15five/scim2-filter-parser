@@ -48,6 +48,9 @@ jobs:
       - uses: actions/checkout@v4
       - run: pip install -U tox poetry
       - run: tox -e coverage
-      - uses: "codecov/codecov-action@v3"
+      - uses: coverallsapp/github-action@v2
         with:
-          fail_ci_if_error: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          file: coverage.xml
+          format: cobertura
+          fail-on-error: true
