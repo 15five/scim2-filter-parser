@@ -439,6 +439,22 @@ class GitHubBugsQueries(SetupHelper, TestCase):
         self.assertSQL(query, sql, params)
 
 
+class LogExpPrecedenceQueries(SetupHelper, TestCase):
+    attr_map = RFCExamples.attr_map
+
+    def test_and_binds_tighter_than_or(self):
+        query = 'title pr or userType eq "Intern" and emails co "example.com"'
+        sql = "(title IS NOT NULL) OR ((usertype = {b}) AND (emails LIKE {c}))"
+        params = {"a": None, "b": "Intern", "c": "%example.com%"}
+        self.assertSQL(query, sql, params)
+
+    def test_parentheses_override_precedence(self):
+        query = '(title pr or userType eq "Intern") and emails co "example.com"'
+        sql = "((title IS NOT NULL) OR (usertype = {b})) AND (emails LIKE {c})"
+        params = {"a": None, "b": "Intern", "c": "%example.com%"}
+        self.assertSQL(query, sql, params)
+
+
 class CommandLine(TestCase):
     def setUp(self):
         self.original_stdout = sys.stdout

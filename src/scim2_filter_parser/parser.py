@@ -110,7 +110,8 @@ class SCIMParser(Parser):
     #       which takes precedence over "or"
     #   3.  Attribute operators
     precedence = (
-        ("left", OR, AND),  # noqa: F821
+        ("left", OR),  # noqa: F821
+        ("left", AND),  # noqa: F821
         ("right", NOT),  # noqa: F821
     )
 
