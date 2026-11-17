@@ -2,7 +2,7 @@ import sys
 from io import StringIO
 from unittest import TestCase
 
-from scim2_filter_parser import lexer, parser
+from scim2_filter_parser import ast, lexer, parser
 
 
 class RegressionTestQueries(TestCase):
@@ -63,6 +63,47 @@ class BuggyQueries(TestCase):
 
         tokens = self.lexer.tokenize(query)
         self.parser.parse(tokens)  # Should not raise error
+
+
+class LogExpPrecedence(TestCase):
+    """RFC 7644 3.4.2.2: "and" takes precedence over "or"."""
+
+    def setUp(self):
+        self.lexer = lexer.SCIMLexer()
+        self.parser = parser.SCIMParser()
+
+    def grouping(self, query):
+        """Render the parsed filter with every logical expression in parentheses"""
+
+        def render(node):
+            if isinstance(node, ast.Filter):
+                inner = render(node.expr)
+                return f"not {inner}" if node.negated else inner
+            if isinstance(node, ast.LogExpr):
+                return f"({render(node.expr1)} {node.op} {render(node.expr2)})"
+            return node.attr_path.attr_name
+
+        return render(self.parser.parse(self.lexer.tokenize(query)))
+
+    def test_and_binds_tighter_than_or_on_the_right(self):
+        query = "a eq 1 or b eq 2 and c eq 3"
+        self.assertEqual(self.grouping(query), "(a or (b and c))")
+
+    def test_and_binds_tighter_than_or_on_the_left(self):
+        query = "a eq 1 and b eq 2 or c eq 3"
+        self.assertEqual(self.grouping(query), "((a and b) or c)")
+
+    def test_parentheses_override_precedence(self):
+        query = "(a eq 1 or b eq 2) and c eq 3"
+        self.assertEqual(self.grouping(query), "((a or b) and c)")
+
+    def test_same_operator_groups_left_to_right(self):
+        self.assertEqual(self.grouping("a eq 1 or b eq 2 or c eq 3"), "((a or b) or c)")
+        self.assertEqual(self.grouping("a eq 1 and b eq 2 and c eq 3"), "((a and b) and c)")
+
+    def test_not_binds_tighter_than_and(self):
+        query = "a eq 1 or not (b eq 2) and c eq 3"
+        self.assertEqual(self.grouping(query), "(a or (not b and c))")
 
 
 class CommandLine(TestCase):

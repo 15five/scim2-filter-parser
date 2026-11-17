@@ -1,6 +1,11 @@
 CHANGE LOG
 ==========
 
+Unreleased
+----------
+- Give "and" precedence over "or" in logical expressions, as RFC 7644 3.4.2.2 requires.
+  Previously ``a or b and c`` parsed as ``(a or b) and c``.
+
 0.7.0
 ----
 - Use "exact" on equality checks against empty strings. #51
